@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">ParkingClientApplication</string>
+
+    <!-- Login strings -->
+    <string name="form_username">Usuario</string>
+    <string name="form_password">Password</string>
+    <string name="button_access">ACCEDER</string>
+
+
+    <!-- Buttons Login -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="registro">Registro</string>
+    <string name="correo">Correo</string>
+    <string name="logout">Logout</string>
+
+    <!-- Vehicles list -->
+    <string name="Car">Car</string>
+    <string name="Motorbike">Motorbike</string>
+    <string name="Bike">Bike</string>
+    <string name="Truck">Truck</string>
+
+    <string-array name="vehicles_array">
+        <item>@string/Car</item>
+        <item>@string/Motorbike</item>
+        <item>@string/Bike</item>
+        <item>@string/Truck</item>
+    </string-array>
+
 </resources>
