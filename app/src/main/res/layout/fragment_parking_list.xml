@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context=".fragments.ParkingListFragment">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+              tools:context=".fragments.ParkingListFragment"
+              android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/manager_options_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scrollbars="vertical"/>
+
+    <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment"/>
-
-</FrameLayout>
+            mapbox:mapbox_cameraTargetLat="40.73581"
+            mapbox:mapbox_cameraTargetLng="-73.99155"
+            mapbox:mapbox_cameraZoom="11" />
+</LinearLayout>

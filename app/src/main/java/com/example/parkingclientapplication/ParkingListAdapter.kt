@@ -7,25 +7,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 
-class VehicleListAdapter(private var vehicles : Array<String>, private val context: Context) : RecyclerView.Adapter<ManagerVehViewHolder>(), View.OnClickListener {
+class ParkingListAdapter(private var parkings : Array<String>, private val context: Context) : RecyclerView.Adapter<ManagerParkingViewHolder>(), View.OnClickListener {
 
     private var listener: View.OnClickListener? = null
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, pos: Int): ManagerVehViewHolder {
-        val vh = LayoutInflater.from(parent.context).inflate(R.layout.client_vehicles_card_view, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, pos: Int): ManagerParkingViewHolder {
+        val vh = LayoutInflater.from(parent.context).inflate(R.layout.client_parkings_card_view, parent, false)
 
         vh.setOnClickListener(this)
-        return ManagerVehViewHolder(vh)
+        return ManagerParkingViewHolder(vh)
     }
 
     override fun getItemCount(): Int {
-        return vehicles.size
+        return parkings.size
     }
 
-    override fun onBindViewHolder(cvh: ManagerVehViewHolder, pos: Int) {
-        val item = vehicles[pos]
-        cvh.bindVehicles(item, context)
+    override fun onBindViewHolder(cvh: ManagerParkingViewHolder, pos: Int) {
+        val item = parkings[pos]
+        cvh.bindParkings(item, context)
     }
 
     override fun onClick(view: View?) {
@@ -40,11 +40,11 @@ class VehicleListAdapter(private var vehicles : Array<String>, private val conte
 
 
 
-class ManagerVehViewHolder (viewVeh: View) : RecyclerView.ViewHolder(viewVeh) {
+class ManagerParkingViewHolder (viewParking: View) : RecyclerView.ViewHolder(viewParking) {
 
-    private var vehicle: TextView = viewVeh.findViewById(R.id.vehicleManager)
+    private var parking: TextView = viewParking.findViewById(R.id.parkingManager)
 
-    fun bindVehicles(o: String, context: Context) {
+    fun bindParkings(o: String, context: Context) {
 
         /*val androidColors =   context.resources.getIntArray(R.array.agendaColors)
         val randomAndroidColor = androidColors[Random().nextInt(androidColors.size)]
@@ -53,7 +53,7 @@ class ManagerVehViewHolder (viewVeh: View) : RecyclerView.ViewHolder(viewVeh) {
         drawable.setColor(randomAndroidColor)
 
         circuloView.text = c.nombre!![0].toString().toUpperCase()*/
-        vehicle.text = o
+        parking.text = o
 
     }
 

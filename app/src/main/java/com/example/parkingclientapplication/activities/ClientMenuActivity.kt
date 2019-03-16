@@ -9,7 +9,7 @@ import com.example.parkingclientapplication.PagerClientMenuAdapter
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.bind
 import com.example.parkingclientapplication.fragments.ClientListFragment
-import com.example.parkingclientapplication.fragments.VehicleAdd1TypeFragment
+import com.example.parkingclientapplication.fragments.VehicleAddFragment
 import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import kotlinx.android.synthetic.main.fragment_client_list.*
@@ -45,7 +45,7 @@ class ClientMenuActivity : AppCompatActivity(), LoadFragments {
                 replace(R.id.form_clientMenu, ClientListFragment())
             }
             5 -> supportFragmentManager.inTransaction {
-                replace(R.id.form_clientMenu, VehicleAdd1TypeFragment())
+                replace(R.id.form_clientMenu, VehicleAddFragment())
             }
             else -> supportFragmentManager.inTransaction {
                 replace(R.id.form_clientMenu, ClientListFragment())

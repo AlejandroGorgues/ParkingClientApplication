@@ -14,16 +14,23 @@
     <string name="logout">Logout</string>
 
     <!-- Vehicles list -->
+    <string name="Vehicle">Select a vehicle</string>
     <string name="Car">Car</string>
     <string name="Motorbike">Motorbike</string>
     <string name="Bike">Bike</string>
     <string name="Truck">Truck</string>
+    <string name="brand">Brand</string>
+    <string name="model">Model</string>
+    <string name="registration_number">Registration Number</string>
+    <string name="confirmed_data">Confirmed data</string>
 
     <string-array name="vehicles_array">
+        <item>@string/Vehicle</item>
         <item>@string/Car</item>
         <item>@string/Motorbike</item>
         <item>@string/Bike</item>
         <item>@string/Truck</item>
     </string-array>
+    <string name="title_activity_maps">Map</string>
 
 </resources>
