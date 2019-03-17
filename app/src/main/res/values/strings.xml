@@ -1,3 +1,44 @@
 <resources>
     <string name="app_name">ParkingClientApplication</string>
+
+    <!-- Login strings -->
+    <string name="form_username">Usuario</string>
+    <string name="form_password">Password</string>
+    <string name="button_access">ACCEDER</string>
+
+
+    <!-- Buttons Login -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="registro">Registro</string>
+    <string name="correo">Correo</string>
+    <string name="logout">Logout</string>
+
+    <!-- Vehicles list -->
+    <string name="Vehicle">Select a vehicle</string>
+    <string name="Car">Car</string>
+    <string name="Motorbike">Motorbike</string>
+    <string name="Bike">Bike</string>
+    <string name="Truck">Truck</string>
+    <string name="brand">Brand</string>
+    <string name="model">Model</string>
+    <string name="registration_number">Registration Number</string>
+    <string name="confirmed_data">Confirmed data</string>
+
+    <string-array name="vehicles_array">
+        <item>@string/Vehicle</item>
+        <item>@string/Car</item>
+        <item>@string/Motorbike</item>
+        <item>@string/Bike</item>
+        <item>@string/Truck</item>
+    </string-array>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- MapBox Strings -->
+    <string name="access_token" translatable="false">
+        pk.eyJ1IjoiYWxlZ29ydmFsIiwiYSI6ImNqdDVzZTFjYTA4NnY0NXA5cmloeXQwaDAifQ.Zb-6UMxKqC3E-OaVPC4Kiw
+    </string>
+    <string name="user_location_permission_explanation">This app needs location permissions to show its functionality.
+    </string>
+    <string name="user_location_permission_not_granted">You didn\'t grant location permissions.</string>
+
 </resources>
