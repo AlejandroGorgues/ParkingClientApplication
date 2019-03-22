@@ -6,11 +6,13 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.interfaces.LoadFragments
 
-class ClientListFragment : Fragment() {
+class ConfirmSelectionFragment : Fragment() {
+    private lateinit var buttonConfirm: Button
 
     private lateinit var loadFragment: LoadFragments
 
@@ -18,17 +20,15 @@ class ClientListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_client_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_confirm_selection, container, false)
 
         loadFragment = activity as LoadFragments
+        buttonConfirm = view.findViewById(R.id.buttonConfirmation)
 
+        buttonConfirm.setOnClickListener {
+            loadFragment.loadFragment(1)
+        }
         // Inflate the layout for this fragment
         return view
     }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        loadFragment.configureTabLayout()
-    }
-
 }

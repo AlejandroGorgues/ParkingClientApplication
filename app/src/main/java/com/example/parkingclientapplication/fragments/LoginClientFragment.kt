@@ -10,9 +10,10 @@ import android.view.ViewGroup
 import android.widget.Button
 
 import com.example.parkingclientapplication.R
-import com.example.parkingclientapplication.activities.ClientMenuActivity
+import com.example.parkingclientapplication.activities.ClientMapActivity
 
 class LoginClientFragment : Fragment() {
+
 
     private lateinit var buttonAccess: Button
 
@@ -24,12 +25,14 @@ class LoginClientFragment : Fragment() {
 
         buttonAccess = view!!.findViewById(R.id.buttonAccess)
         buttonAccess.setOnClickListener {
-            val intent = Intent(activity, ClientMenuActivity::class.java)
+            val intent = Intent(activity, ClientMapActivity::class.java)
             startActivity(intent)
         }
         // Inflate the layout for this fragment
         return view
     }
+
+
 
 
 }

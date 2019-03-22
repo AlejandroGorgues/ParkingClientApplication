@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+                android:id="@+id/nav_profile"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="Perfil"/>
+        <item
+                android:id="@+id/nav_reservations"
+                android:icon="@drawable/ic_menu_gallery"
+                android:title="Mis reservas"/>
+        <item
+                android:id="@+id/nav_vehicles"
+                android:icon="@drawable/ic_menu_slideshow"
+                android:title="Mis vehículos"/>
+        <item
+                android:id="@+id/nav_expenses"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="Mis gastos"/>
+
+        <item
+                android:id="@+id/nav_map"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="Mapa"/>
+        <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Desconectar"/>
+    </group>
+
+    <item android:title="Realidad Aumentada">
+        <menu>
+            <item
+                    android:id="@+id/nav_information"
+                    android:icon="@drawable/ic_menu_share"
+                    android:title="Obtener información plaza"/>
+
+            <item
+                    android:id="@+id/nav_guide"
+                    android:icon="@drawable/ic_menu_share"
+                    android:title="Acceder al guiado"/>
+
+        </menu>
+    </item>
+
+</menu>

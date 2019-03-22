@@ -6,7 +6,6 @@ apply plugin: 'kotlin-android-extensions'
 
 repositories {
     mavenCentral()
-    maven { url 'https://mapbox.bintray.com/mapbox' }
 }
 
 android {
@@ -50,8 +49,7 @@ dependencies {
     implementation 'com.android.support:cardview-v7:28.0.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation 'com.jjoe64:graphview:4.2.2'
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:7.2.0'
-    implementation('com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.32.0')
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'org.jetbrains.anko:anko-common:0.9'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     testImplementation 'junit:junit:4.12'
