@@ -45,6 +45,7 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
 
 
+
     }
 
     override fun onBackPressed() {
@@ -104,7 +105,9 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 startActivity(intent)
             }
             R.id.nav_information -> {
-
+                supportFragmentManager.inTransaction {
+                    replace(R.id.content_data_client, SearchParkingLotFragment())
+                }
             }
             R.id.nav_guide -> {
 
@@ -122,17 +125,21 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 replace(R.id.content_data_client, MapParkingFragment())
             }
             2 -> supportFragmentManager.inTransaction {
-                replace(R.id.content_data_client, MapParkingFragment())
+                replace(R.id.content_data_client, VehicleModifiedFragment())
             }
             3 -> supportFragmentManager.inTransaction {
-                replace(R.id.content_data_client, MapParkingFragment())
+                replace(R.id.content_data_client, VehicleListFragment())
             }
             4 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_data_client, VehicleAddFragment())
             }
-            else -> supportFragmentManager.inTransaction {
+            5 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_data_client, ConfirmSelectionFragment())
+            }
+            else -> supportFragmentManager.inTransaction {
+            replace(R.id.content_data_client, SearchParkingLotFragment())
             }
         }
     }
+
 }

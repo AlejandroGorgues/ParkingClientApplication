@@ -5,11 +5,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import com.example.parkingclientapplication.interfaces.LoadFragments
 
 class VehicleListAdapter(private var vehicles : Array<String>, private val context: Context) : RecyclerView.Adapter<ManagerVehViewHolder>(), View.OnClickListener {
 
     private var listener: View.OnClickListener? = null
+    private var loadFragments: LoadFragments = context as LoadFragments
 
 
     override fun onCreateViewHolder(parent: ViewGroup, pos: Int): ManagerVehViewHolder {
@@ -25,7 +28,7 @@ class VehicleListAdapter(private var vehicles : Array<String>, private val conte
 
     override fun onBindViewHolder(cvh: ManagerVehViewHolder, pos: Int) {
         val item = vehicles[pos]
-        cvh.bindVehicles(item, context)
+        cvh.bindVehicles(item, context, loadFragments)
     }
 
     override fun onClick(view: View?) {
@@ -40,11 +43,14 @@ class VehicleListAdapter(private var vehicles : Array<String>, private val conte
 
 
 
-class ManagerVehViewHolder (viewVeh: View) : RecyclerView.ViewHolder(viewVeh) {
+class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
 
     private var vehicle: TextView = viewVeh.findViewById(R.id.vehicleManager)
+    private var modButton: ImageButton = viewVeh.findViewById(R.id.modifiedCarButton)
 
-    fun bindVehicles(o: String, context: Context) {
+
+    fun bindVehicles(o: String, context: Context, loadFragments: LoadFragments) {
+
 
         /*val androidColors =   context.resources.getIntArray(R.array.agendaColors)
         val randomAndroidColor = androidColors[Random().nextInt(androidColors.size)]
@@ -53,6 +59,9 @@ class ManagerVehViewHolder (viewVeh: View) : RecyclerView.ViewHolder(viewVeh) {
         drawable.setColor(randomAndroidColor)
 
         circuloView.text = c.nombre!![0].toString().toUpperCase()*/
+        modButton.setOnClickListener {
+         loadFragments.loadFragment(2)
+        }
         vehicle.text = o
 
     }

@@ -14,13 +14,14 @@ import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.VehicleListAdapter
 import android.content.Intent
 import android.support.design.widget.FloatingActionButton
+import android.widget.ImageButton
 import com.example.parkingclientapplication.interfaces.LoadFragments
 
 
 class VehicleListFragment : Fragment() {
 
     private lateinit var vehAdapter: RecyclerView.Adapter<*>
-    //private lateinit var root: View
+    private lateinit var modImageButton: ImageButton
     private lateinit var vehRecyclerView: RecyclerView
     private val vehicles: Array<String> = arrayOf("Vehiculo1", "Vehiculo2", "Vehiculo3", "Vehiculo4", "Vehiculo5", "Vehiculo6")
 
@@ -37,7 +38,7 @@ class VehicleListFragment : Fragment() {
         vehAdapter = VehicleListAdapter(vehicles, context!!)
         (vehAdapter as VehicleListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = vehRecyclerView.getChildAdapterPosition(v)
-
+            loadFragment.loadFragment(6)
 
 
         })

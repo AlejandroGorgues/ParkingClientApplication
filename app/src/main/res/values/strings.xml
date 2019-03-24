@@ -31,15 +31,23 @@
         <item>@string/Bike</item>
         <item>@string/Truck</item>
     </string-array>
+    <string name="confirmar">Confirmar</string>
+
     <string name="title_activity_maps">Map</string>
 
-    <!-- MapBox Strings -->
-
-    <string name="user_location_permission_explanation">La aplicación necesita los permisisos de localización
+    <!-- GoogleMaps Permissions -->
+    <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my
+        location\' feature, which shows your current location on the map.
     </string>
-    <string name="user_location_permission_not_granted">"No se han concedido los permisos de localización."</string>
-    <string name="oldVersion">La versión que posee es anterior a la version 23</string>
-    <string name="confirmar">Confirmar</string>
+    <string name="location_permission_denied">This sample requires location permission to enable the \'my location\'
+        layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it
+        can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.
+    </string>
+
+    <string name="take_picture">Take picture</string>
+
+    <string name="permission_required_toast">Location permission is required for this demo.</string>
+    <string name="old_version">Android old version.</string>
 
 
     <string name="title_activity_client_map">ClientMapActivity</string>
@@ -49,6 +57,10 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="update_dates">Actualizar datos</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="username">Usuario</string>
 
 
 </resources>

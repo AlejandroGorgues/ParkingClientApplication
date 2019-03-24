@@ -11,16 +11,23 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Datos del usuario \n USUARIO1"/>
+            android:text="Datos del vehículo"/>
+
+    <Spinner
+            android:id="@+id/vehicles_spinner_mod"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content" />
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
+                android:id="@+id/vehicles_brand_mod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/username"/>
+                android:hint="@string/brand"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -29,9 +36,10 @@
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
+                android:id="@+id/vehicles_model_mod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/password"/>
+                android:hint="@string/model"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -40,9 +48,10 @@
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
+                android:id="@+id/vehicles_number_mod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/email"/>
+                android:hint="@string/registration_number"/>
 
     </android.support.design.widget.TextInputLayout>
 
