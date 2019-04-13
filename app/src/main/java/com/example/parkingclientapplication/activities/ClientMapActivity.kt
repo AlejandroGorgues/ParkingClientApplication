@@ -17,7 +17,6 @@ import com.example.parkingclientapplication.interfaces.LoadFragments
 import kotlinx.android.synthetic.main.activity_client_map.*
 import kotlinx.android.synthetic.main.app_bar_client_map.*
 
-
 class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,7 +105,7 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             }
             R.id.nav_information -> {
                 supportFragmentManager.inTransaction {
-                    replace(R.id.content_data_client, SearchParkingLotFragment())
+                    replace(R.id.content_data_client, QrClientFragment())
                 }
             }
             R.id.nav_guide -> {
