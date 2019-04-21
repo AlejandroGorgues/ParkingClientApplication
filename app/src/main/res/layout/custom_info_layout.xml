@@ -12,39 +12,55 @@
             android:src="@drawable/ic_menu_camera" />
 
     <TextView
-            android:id="@+id/info_window_nombre"
+            android:id="@+id/info_window_parking"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toRightOf="@id/info_window_imagen"
-            android:paddingLeft="5dp"
-            android:text="Carlo Estrada Solano" />
+            android:layout_toEndOf="@id/info_window_imagen"
+            android:paddingStart="5dp"
+            android:text="Parking" />
 
     <TextView
-            android:id="@+id/info_window_placas"
+            android:id="@+id/info_window_direction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:layout_below="@id/info_window_nombre"
-            android:layout_toRightOf="@id/info_window_imagen"
-            android:paddingLeft="5dp"
-            android:text="Placas: SX5487" />
+            android:layout_below="@id/info_window_parking"
+            android:layout_toEndOf="@id/info_window_imagen"
+            android:paddingStart="5dp"
+            android:text="Direccion" />
 
     <TextView
-            android:id="@+id/info_window_estado"
+            android:id="@+id/info_window_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/info_window_placas"
-            android:layout_toRightOf="@id/info_window_imagen"
-            android:paddingLeft="5dp"
+            android:layout_below="@id/info_window_direction"
+            android:layout_toEndOf="@id/info_window_imagen"
+            android:paddingStart="5dp"
             android:text="Estado: Activo" />
+
+    <TextView
+            android:id="@+id/info_window_free"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/info_window_state"
+            android:layout_toEndOf="@id/info_window_imagen"
+            android:paddingStart="5dp"
+            android:text="50/100" />
 
     <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/parkingSelectedButton"
-            android:layout_below="@id/info_window_estado"
+            android:id="@+id/info_window_coste"
+            android:layout_below="@id/info_window_free"
             android:layout_toEndOf="@id/info_window_imagen"
-    android:text="Pulsa la ventana \n para reservar"/>
+            android:text="2€/h"/>
+
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:id="@+id/info_window_reservation"
+              android:layout_below="@id/info_window_coste"
+              android:layout_toEndOf="@id/info_window_imagen"
+              android:text="Pulsa la ventana \n para reservar"/>
 
 </RelativeLayout>

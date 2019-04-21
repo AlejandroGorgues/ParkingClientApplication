@@ -39,6 +39,11 @@
                     android:title="Obtener información plaza"/>
 
             <item
+                    android:id="@+id/nav_license_plate"
+                    android:icon="@drawable/ic_menu_share"
+                    android:title="Comprobar matrícula"/>
+
+            <item
                     android:id="@+id/nav_guide"
                     android:icon="@drawable/ic_menu_share"
                     android:title="Acceder al guiado"/>
