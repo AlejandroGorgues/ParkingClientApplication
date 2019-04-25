@@ -20,6 +20,7 @@ import com.example.parkingclientapplication.interfaces.LoadFragments
 
 class VehicleListFragment : Fragment() {
 
+
     private lateinit var vehAdapter: RecyclerView.Adapter<*>
     private lateinit var modImageButton: ImageButton
     private lateinit var vehRecyclerView: RecyclerView
@@ -35,11 +36,12 @@ class VehicleListFragment : Fragment() {
 
 
         loadFragment = activity as LoadFragments
-        vehRecyclerView = view!!.findViewById(R.id.manager_options_recycler_view)
+        vehRecyclerView = view!!.findViewById(R.id.client_vehicle_recycler_view)
         vehAdapter = VehicleListAdapter(vehicles, context!!)
         (vehAdapter as VehicleListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = vehRecyclerView.getChildAdapterPosition(v)
-            loadFragment.loadFragment(5)
+            val bundle = Bundle()
+            //loadFragment.loadFragment(5, bundle)
 
 
         })
@@ -47,7 +49,8 @@ class VehicleListFragment : Fragment() {
         val fab = view.findViewById(R.id.newVehicle) as FloatingActionButton
         fab.setOnClickListener {
             // Click action
-            loadFragment.loadFragment(4)
+            val bundle = Bundle()
+            loadFragment.loadFragment(4, bundle)
         }
         inicializarReciclerView()
         setHasOptionsMenu(true)
@@ -76,6 +79,8 @@ class VehicleListFragment : Fragment() {
         vehRecyclerView.layoutManager = LinearLayoutManager(activity)
         vehRecyclerView.itemAnimator = DefaultItemAnimator()
     }
+
+
 
 
 }

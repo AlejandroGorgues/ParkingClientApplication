@@ -20,7 +20,9 @@
         <android.support.design.widget.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/profileName"
+                android:id="@+id/edName"
+                android:inputType="text"
+                android:maxLines="1"
                 android:hint="@string/username"/>
 
     </android.support.design.widget.TextInputLayout>
@@ -32,7 +34,9 @@
         <android.support.design.widget.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/profilePassword"
+                android:id="@+id/edPassword"
+                android:inputType="text"
+                android:maxLines="1"
                 android:hint="@string/password"/>
 
     </android.support.design.widget.TextInputLayout>
@@ -44,14 +48,15 @@
         <android.support.design.widget.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/profileEmail"
+                android:id="@+id/edEmail"
+                android:maxLines="1"
                 android:hint="@string/email"/>
 
     </android.support.design.widget.TextInputLayout>
 
     <Button
 
-            android:id="@+id/buttonContinue1"
+            android:id="@+id/buttonUpdate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/update_dates"

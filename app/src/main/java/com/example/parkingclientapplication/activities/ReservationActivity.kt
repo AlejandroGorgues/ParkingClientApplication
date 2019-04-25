@@ -41,7 +41,7 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
 
     }
 
-    override fun loadFragment(fragment: Int) {
+    override fun loadFragment(fragment: Int, bundle:Bundle) {
         when (fragment) {
             1 -> supportFragmentManager.inTransSelection {
                 replace(R.id.content_client_reservation, ConfirmSelectionFragment())

@@ -6,7 +6,7 @@
              tools:context=".fragments.VehicleListFragment">
 
     <android.support.v7.widget.RecyclerView
-            android:id="@+id/manager_options_recycler_view"
+            android:id="@+id/client_vehicle_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="vertical"/>

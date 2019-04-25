@@ -21,12 +21,12 @@ class ConfirmSelectionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_confirm_selection, container, false)
-
+        val bundle = Bundle()
         loadFragment = activity as LoadFragments
         buttonConfirm = view.findViewById(R.id.buttonConfirmation)
 
         buttonConfirm.setOnClickListener {
-            loadFragment.loadFragment(1)
+            loadFragment.loadFragment(1, bundle)
         }
         // Inflate the layout for this fragment
         return view

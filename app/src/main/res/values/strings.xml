@@ -31,6 +31,29 @@
         <item>@string/Bike</item>
         <item>@string/Truck</item>
     </string-array>
+
+    <!-- Date list -->
+    <string name="d0120">01/20</string>
+    <string name="d0220">02/20</string>
+    <string name="d0320">03/20</string>
+    <string name="d0420">04/20</string>
+    <string name="d0520">05/20</string>
+    <string name="d0620">06/20</string>
+    <string name="d0720">07/20</string>
+    <string name="d0820">08/20</string>
+    <string name="d0920">09/20</string>
+
+    <string-array name="date_array">
+        <item>@string/d0120</item>
+        <item>@string/d0220</item>
+        <item>@string/d0320</item>
+        <item>@string/d0420</item>
+        <item>@string/d0520</item>
+        <item>@string/d0620</item>
+        <item>@string/d0720</item>
+        <item>@string/d0820</item>
+        <item>@string/d0920</item>
+    </string-array>
     <string name="confirmar">Confirmar</string>
 
     <string name="title_activity_maps">Map</string>

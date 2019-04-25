@@ -1,6 +1,7 @@
 package com.example.parkingclientapplication
 
 import android.content.Context
+import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -51,7 +52,7 @@ class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
 
     fun bindVehicles(o: String, context: Context, loadFragments: LoadFragments) {
 
-
+        val bundle = Bundle()
         /*val androidColors =   context.resources.getIntArray(R.array.agendaColors)
         val randomAndroidColor = androidColors[Random().nextInt(androidColors.size)]
 
@@ -60,7 +61,7 @@ class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
 
         circuloView.text = c.nombre!![0].toString().toUpperCase()*/
         modButton.setOnClickListener {
-         loadFragments.loadFragment(2)
+         loadFragments.loadFragment(2, bundle)
         }
         vehicle.text = o
 

@@ -59,6 +59,11 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     replace(R.id.content_data_client, ProfileClientFragment(), "perfil")
                 }
             }
+            R.id.nav_bank -> {
+                supportFragmentManager.inTransaction {
+                    replace(R.id.content_data_client, BankProfileFragment(), "bank")
+                }
+            }
             R.id.nav_reservations -> {
                 supportFragmentManager.inTransaction {
                     replace(R.id.content_data_client, ReservationListClientFragment(), "reserv")
@@ -104,7 +109,7 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         return true
     }
 
-    override fun loadFragment(fragment: Int) {
+    override fun loadFragment(fragment: Int, bundle:Bundle) {
         when (fragment) {
             1 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_data_client, MapParkingFragment())
@@ -121,6 +126,13 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             5 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_data_client, ConfirmSelectionFragment())
             }
+            6 -> {
+                val reservationProfileFragment = ReservationProfileFragment()
+                reservationProfileFragment.arguments = bundle
+                supportFragmentManager.inTransaction {
+                replace(R.id.content_data_client, reservationProfileFragment)
+                }
+            }
         }
     }
 
@@ -132,10 +144,8 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
         if (result != null) {
             if (result.contents == null) {
-                Log.e("aqui", "Cancelled scan")
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
             } else {
-                Log.e("aqui", "Scanned")
                 Toast.makeText(
                     this,
                     "FORMAT: " + result.formatName + " \nCONTENT: " + result.contents,

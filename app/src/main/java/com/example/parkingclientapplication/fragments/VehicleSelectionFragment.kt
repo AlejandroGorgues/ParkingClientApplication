@@ -37,11 +37,12 @@ class VehicleSelectionFragment : Fragment() {
 
 
         loadFragment = activity as LoadFragments
-        vehRecyclerView = view!!.findViewById(R.id.manager_selection_recycler_view)
+        vehRecyclerView = view!!.findViewById(R.id.client_vehicle_selection_recycler_view)
         vehAdapter = VehicleSelectionAdapter(vehicles, context!!)
         (vehAdapter as VehicleSelectionAdapter).setOnClickListener(View.OnClickListener { v ->
+            val bundle = Bundle()
             val opt = vehRecyclerView.getChildAdapterPosition(v)
-            loadFragment.loadFragment(1)
+            loadFragment.loadFragment(1, bundle)
 
 
         })

@@ -8,19 +8,37 @@ import android.text.Editable
 import android.view.*
 
 import com.example.parkingclientapplication.R
-import com.example.parkingclientapplication.model.Profile
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import kotlinx.android.synthetic.main.fragment_profile_client.*
 import android.widget.ProgressBar
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import android.app.AlertDialog
+import android.support.design.widget.TextInputEditText
+import android.text.TextWatcher
+import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import com.example.parkingclientapplication.AzureClient
+import com.example.parkingclientapplication.model.Driver
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
+import kotlinx.coroutines.withContext
+import org.jetbrains.anko.uiThread
 import java.net.MalformedURLException
 
 
 class ProfileClientFragment : Fragment() {
 
     private var mClient: MobileServiceClient? = null
+
+    private lateinit var edPassword: EditText
+    private lateinit var edEmail: EditText
+    private lateinit var edName: EditText
+    private lateinit var bUpdate: Button
+
+    private var driverTable: MobileServiceTable<Driver>? = null
+    private lateinit var driver: Driver
+
 
     /**
      * Progress spinner to use for table operations
@@ -34,33 +52,104 @@ class ProfileClientFragment : Fragment() {
     ): View? {
 
         val view =  inflater.inflate(R.layout.fragment_profile_client, container, false)
+        edPassword = view.findViewById(R.id.edPassword)
+        edEmail = view.findViewById(R.id.edEmail)
+        edName = view.findViewById(R.id.edName)
+        bUpdate = view.findViewById(R.id.buttonUpdate)
         try {
         // Create the client instance, using the provided mobile app URL.
-        mClient = MobileServiceClient(
-                "https://clientmobileparking.azurewebsites.net",
-        context)
+            mClient = AzureClient.getInstance(context!!).getClient()
 
-        mClient!!.setAndroidHttpClientFactory {
-            val client = OkHttpClient()
-            client.readTimeoutMillis()
-            client.writeTimeoutMillis()
-            client
+
+
+            mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }
+
+            driverTable = mClient!!.getTable(Driver::class.java)
+            doAsync {
+
+                val resultQuery = driverTable!!.where().field("username").eq("agorgues").execute().get()
+                for (profile in resultQuery){
+                    driver = profile
+                    uiThread {
+                        edName.setText(profile.username)
+                        edPassword.setText(profile.password)
+                        edEmail.setText(profile.email)
+                    }
+
+
+                }
+            }
+
+
+
+        } catch (e: MalformedURLException) {
+            AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
+        } catch (e: java.lang.Exception){
+            AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
 
-        doAsync {
-            val profileTable = mClient!!.getTable(Profile::class.java).execute().get()
-            for (profile in profileTable){
-                profileName.text = Editable.Factory.getInstance().newEditable(profile.username)
-                profilePassword.text = Editable.Factory.getInstance().newEditable(profile.password)
-                profileEmail.text = Editable.Factory.getInstance().newEditable(profile.email)
+        edName.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    driver.username = s.toString()
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+
+                }
+
+
+            })
+
+        edEmail.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+
+                    driver.email = s.toString()
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+
+                }
+
+
+            })
+
+        edPassword.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+                }
+
+                override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                    driver.password = s.toString()
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+
+                }
+
+
+            })
+
+        bUpdate.setOnClickListener {
+            doAsync {
+                driverTable!!.update(driver).get()
             }
         }
-        } catch (e: MalformedURLException) {
-            createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
-        } catch (e: java.lang.Exception){
-            createAndShowDialog(e, "Error")
-        }
-
         setHasOptionsMenu(true)
         return view
     }
@@ -79,6 +168,7 @@ class ProfileClientFragment : Fragment() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+
     }
 
 
@@ -111,36 +201,5 @@ class ProfileClientFragment : Fragment() {
             return resultFuture
         }
     }*/
-    /**
-     * Creates a dialog and shows it
-     *
-     * @param exception
-     * The exception to show in the dialog
-     * @param title
-     * The dialog title
-     */
-    private fun createAndShowDialog(exception: Exception, title: String) {
-        var ex: Throwable = exception
-        if (exception.cause != null) {
-            ex = exception.cause!!
-        }
-        ex.message?.let { createAndShowDialog(it, title) }
-    }
-
-    /**
-     * Creates a dialog and shows it
-     *
-     * @param message
-     * The dialog message
-     * @param title
-     * The dialog title
-     */
-    private fun createAndShowDialog(message: String, title: String) {
-        val builder = AlertDialog.Builder(context)
-
-        builder.setMessage(message)
-        builder.setTitle(title)
-        builder.create().show()
-    }
 }
 

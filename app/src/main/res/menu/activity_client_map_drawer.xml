@@ -9,6 +9,10 @@
                 android:icon="@drawable/ic_menu_camera"
                 android:title="Perfil"/>
         <item
+                android:id="@+id/nav_bank"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="Perfil bancario"/>
+        <item
                 android:id="@+id/nav_reservations"
                 android:icon="@drawable/ic_menu_gallery"
                 android:title="Mis reservas"/>

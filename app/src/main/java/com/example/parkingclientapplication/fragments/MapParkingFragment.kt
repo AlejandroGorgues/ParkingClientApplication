@@ -13,8 +13,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 
 import com.example.parkingclientapplication.R
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.LatLng
 import android.widget.Toast
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,12 +26,21 @@ import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.GoogleDirection
 import com.akexorcist.googledirection.model.Direction
 import com.akexorcist.googledirection.util.DirectionConverter
-import com.google.android.gms.maps.model.Marker
+import com.example.parkingclientapplication.AzureClient
+import com.example.parkingclientapplication.SingletonHolder
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.model.Parking
+import com.example.parkingclientapplication.model.ParkingLot
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.*
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import kotlinx.android.synthetic.main.item_row.*
+import okhttp3.OkHttpClient
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.io.IOException
+import java.net.MalformedURLException
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -46,14 +53,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     lateinit var mapView: MapView
     var mapFragment: GoogleMap? = null
 
-    private val NEARCurrentLocation1 = LatLng(37.4258983, -122.084)
-    private val NEARCurrentLocation2 = LatLng(37.4219983, -122.184)
-    private val NEARCurrentLocation3 = LatLng(37.4210083, -122.043)
-
-    private var mNEARCurrentLocation1: Marker? = null
-    private var mNEARCurrentLocation2: Marker? = null
-    private var mNEARCurrentLocation3: Marker? = null
-
     private var permissions: ArrayList<String> = ArrayList()
     private var markerList: ArrayList<Marker> = ArrayList()
 
@@ -64,8 +63,19 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     private var uiSettings: UiSettings? = null
 
     private var currentLocation: Location? = null
+    private var randomLocation: Location? = null
 
     private var isEnabled: Boolean = false
+    private var maxOccupation = 0
+    private var occupation = 0
+
+    private var mClient: MobileServiceClient? = null
+
+    private var parkingTable: MobileServiceTable<Parking>? = null
+    private var parkingLotTable: MobileServiceTable<ParkingLot>? = null
+
+    private var parkings = ArrayList<Parking>()
+    private var parkingsLot = ArrayList<ParkingLot>()
 
 
     override fun onCreateView(
@@ -79,6 +89,8 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
         loadFragments = activity as LoadFragments
 
+        currentLocation = Location("")
+        randomLocation = Location("")
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
@@ -114,6 +126,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                     }
                 }
                 currentLocation = Location("")
+                randomLocation = Location("")
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -123,32 +136,75 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     override fun onMapReady(googleMap: GoogleMap?) {
         mapFragment = googleMap!!
 
-        // Add a marker in Sydney, Australia, and move the camera.
-        mNEARCurrentLocation1 = mapFragment!!
-            .addMarker(MarkerOptions()
-                .position(NEARCurrentLocation1)
-                .title("Perth")
-                .icon(BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-            )
-        mNEARCurrentLocation2 = mapFragment!!
-            .addMarker(MarkerOptions()
-                .position(NEARCurrentLocation2)
-                .title("BRISBANE")
-                .icon(BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_RED))
-            )
-        mNEARCurrentLocation3 = mapFragment!!
-            .addMarker(MarkerOptions()
-                .position(NEARCurrentLocation3)
-                .title("Sydney")
-                .icon(BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-            )
 
-        mNEARCurrentLocation1!!.tag = 0
-        mNEARCurrentLocation2!!.tag = 0
-        mNEARCurrentLocation3!!.tag = 0
+        try {
+            // Create the client instance, using the provided mobile app URL.
+            mClient = AzureClient.getInstance(context!!).getClient()
+
+            mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }
+
+            parkingTable = mClient!!.getTable(Parking::class.java)
+            parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
+            doAsync {
+
+                val resultQueryLot = parkingLotTable!!.execute().get()
+                for (parkingLot in resultQueryLot){
+                    maxOccupation = +1
+                    if (parkingLot.stateLot!!) occupation = +1
+                    parkingsLot.add(parkingLot)
+                }
+
+                val resultQueryParking = parkingTable!!.execute().get()
+                for (parking in resultQueryParking){
+                    parkings.add(parking)
+                    randomLocation!!.latitude = parking.latitude!!.toDouble()
+                    randomLocation!!.longitude = parking.longitude!!.toDouble()
+
+                    uiThread {
+                        drawMarker(randomLocation!!, parking.nameParking!!, parking.price!!)
+                    }
+
+                }
+
+
+            }
+
+            mapFragment!!.setInfoWindowAdapter(object:GoogleMap.InfoWindowAdapter {
+                private var mContents: View? = null
+
+                override fun getInfoWindow(marker:Marker):View? {
+                    return null
+                }
+                override fun getInfoContents(marker:Marker):View {
+                    mContents = activity!!.layoutInflater.inflate(R.layout.custom_info_layout, null)
+
+
+                    val selectedParking: Parking = parkings.single { parking -> parking.nameParking == marker.title}
+
+                    (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = selectedParking.nameParking
+                    (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = selectedParking.direction
+                    (mContents!!.findViewById(R.id.info_window_state) as TextView).text = selectedParking.stateParking.toString()
+                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = occupation.toString() + "/" + maxOccupation
+                    (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = selectedParking.price.toString()
+
+
+                    return mContents!!
+                }
+            })
+
+        } catch (e: MalformedURLException) {
+            AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
+        } catch (e: java.lang.Exception){
+            AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
+        }
+
+
+        //mNEARCurrentLocation1!!.tag = 0
 
         uiSettings = mapFragment!!.uiSettings
 
@@ -159,46 +215,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         mapFragment!!.setOnMyLocationClickListener(this)
         mapFragment!!.setOnMyLocationButtonClickListener(this)
         mapFragment!!.setOnMarkerClickListener(this)
-
-        mapFragment!!.setInfoWindowAdapter(object:GoogleMap.InfoWindowAdapter {
-            private var mContents: View? = null
-
-            override fun getInfoWindow(marker:Marker):View? {
-                return null
-            }
-            override fun getInfoContents(marker:Marker):View {
-                mContents = activity!!.layoutInflater.inflate(R.layout.custom_info_layout, null)
-
-                when {
-                    marker.title == "Perth" -> {
-                        (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = "Aparcamiento Perth"
-                        (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = "Avenida de Juan"
-                        (mContents!!.findViewById(R.id.info_window_state) as TextView).text = "Estado: Activo 24/7"
-                        (mContents!!.findViewById(R.id.info_window_free) as TextView).text = "Plazas: 50/100"
-                        (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = "3€/h"
-                    }
-                    marker.title == "BRISBANE" -> {
-                        (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = "Aparcamiento BRISBANE"
-                        (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = "Avenida de Pedro"
-                        (mContents!!.findViewById(R.id.info_window_state) as TextView).text = "Estado: Activo 24/7"
-                        (mContents!!.findViewById(R.id.info_window_free) as TextView).text = "Plazas: 90/100"
-                        (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = "3€/h"
-
-                    }
-                    marker.title == "Sydney" -> {
-                        (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = "Aparcamiento Sydney"
-                        (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = "Avenida de Jorge"
-                        (mContents!!.findViewById(R.id.info_window_state) as TextView).text = "Estado: Activo 24/7"
-                        (mContents!!.findViewById(R.id.info_window_free) as TextView).text = "Plazas: 23/70"
-                        (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = "2€/h"
-
-                    }
-                }
-
-                return mContents!!
-            }
-        })
-        mapFragment!!.moveCamera(CameraUpdateFactory.newLatLng(NEARCurrentLocation1))
         mapFragment!!.setOnInfoWindowClickListener(this)
 
 
@@ -261,7 +277,8 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     override fun onInfoWindowClick(p0: Marker?) {
         try
         {
-            Handler().postDelayed({  loadFragments.loadFragment(3) }, 100)
+            val bundle = Bundle()
+            Handler().postDelayed({  loadFragments.loadFragment(3, bundle) }, 100)
             return
         }
         catch (e:Exception) {
@@ -377,7 +394,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                 mFusedLocationClient.lastLocation
                     .addOnSuccessListener { location ->
                         currentLocation = location
-                        drawMarker(currentLocation!!, "Mi localizacion")
+                        drawMarker(currentLocation!!, "Mi localizacion", 0F)
                     }
 
                     .addOnFailureListener { e -> e.printStackTrace() }
@@ -490,7 +507,25 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         }
     }
 
-    private fun drawMarker(location: Location, title: String) {
+    private fun drawMarker(location: Location, title: String, price: Float) {
+
+
+        val color: BitmapDescriptor = when {
+            price > 4  ->
+                BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            price == 2.5F ->
+                BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            price < 2.5F  && price > 0F ->
+                BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+            else ->
+                BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+        }
+
+
         val gps = LatLng(location.latitude, location.longitude)
 
         var indexMarker: Int = -1
@@ -498,6 +533,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         val marker = MarkerOptions()
             .position(gps)
             .title(title)
+            .icon(color)
         for (i in 0 until markerList.size) {
             if (markerList[i].title == marker!!.title && marker.title == "Mi localizacion") {
                 indexMarker = i
@@ -513,6 +549,5 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         }
 
     }
-
 
 }
