@@ -4,27 +4,27 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
+              android:gravity="center"
               tools:context=".fragments.VehicleAddFragment">
-
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Datos del vehículo"/>
-
-    <Spinner
-            android:id="@+id/vehicles_spinner_mod"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content" />
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-                android:id="@+id/vehicles_brand_mod"
+                android:id="@+id/edTipoVehiculo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tipo de vehículo"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <android.support.design.widget.TextInputEditText
+                android:id="@+id/edMarcaVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/brand"/>
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-                android:id="@+id/vehicles_model_mod"
+                android:id="@+id/edModeloVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/model"/>
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
-                android:id="@+id/vehicles_number_mod"
+                android:id="@+id/edMatriculaVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/registration_number"/>

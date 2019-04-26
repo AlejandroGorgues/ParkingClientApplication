@@ -15,7 +15,16 @@ import android.support.design.widget.NavigationView
 import android.text.Layout
 import android.view.*
 import android.widget.ImageButton
+import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.model.Reservation
+import com.example.parkingclientapplication.model.Vehicle
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
+import okhttp3.OkHttpClient
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.net.MalformedURLException
 
 
 class VehicleListFragment : Fragment() {
@@ -24,7 +33,10 @@ class VehicleListFragment : Fragment() {
     private lateinit var vehAdapter: RecyclerView.Adapter<*>
     private lateinit var modImageButton: ImageButton
     private lateinit var vehRecyclerView: RecyclerView
-    private val vehicles: Array<String> = arrayOf("Vehiculo1", "Vehiculo2", "Vehiculo3", "Vehiculo4", "Vehiculo5", "Vehiculo6")
+    private var mClient: MobileServiceClient? = null
+
+    private var vehicleTable: MobileServiceTable<Vehicle>? = null
+    private var vehicles = ArrayList<Vehicle>()
 
     private lateinit var loadFragment: LoadFragments
 
@@ -37,11 +49,44 @@ class VehicleListFragment : Fragment() {
 
         loadFragment = activity as LoadFragments
         vehRecyclerView = view!!.findViewById(R.id.client_vehicle_recycler_view)
+        try {
+            // Create the client instance, using the provided mobile app URL.
+            mClient = AzureClient.getInstance(context!!).getClient()
+
+
+
+            mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }
+
+            vehicleTable = mClient!!.getTable(Vehicle::class.java)
+            doAsync {
+
+                val resultQuery = vehicleTable!!.execute().get()
+                for (reservation in resultQuery){
+                    vehicles.add(reservation)
+                    uiThread {
+                        vehAdapter.notifyDataSetChanged()
+                    }
+                }
+
+            }
+
+        } catch (e: MalformedURLException) {
+            AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
+        } catch (e: java.lang.Exception){
+            AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
+        }
         vehAdapter = VehicleListAdapter(vehicles, context!!)
         (vehAdapter as VehicleListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = vehRecyclerView.getChildAdapterPosition(v)
             val bundle = Bundle()
-            //loadFragment.loadFragment(5, bundle)
+            //Log.e("aqui", reservations[opt].timeReservation.toString())
+            bundle.putParcelable("vehiculo", vehicles[opt])
+            loadFragment.loadFragment(2, bundle)
 
 
         })

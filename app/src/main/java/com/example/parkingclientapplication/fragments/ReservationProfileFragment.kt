@@ -5,17 +5,25 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.*
+import android.widget.EditText
 import android.widget.TextView
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.model.Reservation
+import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ReservationProfileFragment : Fragment() {
-    private lateinit var txtTime: TextView
-    private lateinit var txtPrice: TextView
-    private lateinit var txtLicensePlate: TextView
-    private lateinit var txtModel: TextView
-    private lateinit var txtBrand: TextView
+    private lateinit var edUserReserv: EditText
+    private lateinit var edParkingReserv: EditText
+    private lateinit var edTarjetaReserv: EditText
+    private lateinit var edMatriculaReserv: EditText
+    private lateinit var edTiempoReserv: EditText
+    private lateinit var edFechaReserv: EditText
+    private lateinit var edEstadoReserv: EditText
+    private lateinit var edPrecioReserv: EditText
 
     private lateinit var reservation: Reservation
 
@@ -26,19 +34,25 @@ class ReservationProfileFragment : Fragment() {
         // Inflate the layout for this fragment
         val view =  inflater.inflate(R.layout.fragment_reservation_profile, container, false)
 
-        txtTime = view.findViewById(R.id.txtTime)
-        txtPrice = view.findViewById(R.id.txtPrice)
-        txtLicensePlate = view.findViewById(R.id.txtLicensePlate)
-        txtModel = view.findViewById(R.id.txtModel)
-        txtBrand = view.findViewById(R.id.txtBrand)
+        edUserReserv = view.findViewById(R.id.edUserReserv)
+        edParkingReserv = view.findViewById(R.id.edParkingReserv)
+        edTarjetaReserv = view.findViewById(R.id.edTarjetaReserv)
+        edMatriculaReserv = view.findViewById(R.id.edMatriculaReserv)
+        edTiempoReserv = view.findViewById(R.id.edTiempoReserv)
+        edFechaReserv = view.findViewById(R.id.edFechaReserv)
+        edEstadoReserv = view.findViewById(R.id.edEstadoReserv)
+        edPrecioReserv = view.findViewById(R.id.edPrecioReserv)
 
         reservation = arguments!!.getParcelable("reservation")!!
 
-        txtTime.text = reservation.dateReservation.toString()
-        txtPrice.text = reservation.expenses.toString()
-        txtLicensePlate.text  = reservation.licensePlate
-        txtModel.text = reservation.model
-        txtBrand.text = reservation.brand
+        edUserReserv.setText("Usuario")
+        edParkingReserv.setText("Parking reserva")
+        edTarjetaReserv.setText("Tarjeta usuario")
+        edMatriculaReserv.setText(reservation.licensePlate)
+        edTiempoReserv.setText(reservation.timeActive)
+        edFechaReserv.setText(trimDate(reservation.dateReservation.toString()))
+        edEstadoReserv.setText(reservation.state)
+        edPrecioReserv.setText(reservation.expensesActive.toString())
 
 
         setHasOptionsMenu(true)
@@ -59,6 +73,17 @@ class ReservationProfileFragment : Fragment() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun trimDate(dateString:String): String{
+        val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.UK)
+        var dateReservation: Date? = null
+        try {
+            dateReservation = df.parse(dateString)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+        return DateFormat.getInstance().format(dateReservation)
     }
 
 

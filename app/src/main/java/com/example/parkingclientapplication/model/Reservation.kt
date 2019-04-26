@@ -17,16 +17,20 @@ class Reservation() : Parcelable {
     var licensePlate: String? = null
     var model: String? = null
     var brand: String? = null
-    var expenses: Float? = null
-    var dateReservation: Date? = null
-    var timeReservation: Time? = null
+    var expensesActive: Float? = null
+    var dateReservation: String? = null
+    var timeActive: String? = null
+    var state: String? = null
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()
         licensePlate = parcel.readString()
         model = parcel.readString()
         brand = parcel.readString()
-        expenses = parcel.readValue(Float::class.java.classLoader) as? Float
+        expensesActive = parcel.readValue(Float::class.java.classLoader) as? Float
+        dateReservation = parcel.readString()
+        timeActive = parcel.readString()
+        state = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -34,7 +38,10 @@ class Reservation() : Parcelable {
         parcel.writeString(licensePlate)
         parcel.writeString(model)
         parcel.writeString(brand)
-        parcel.writeValue(expenses)
+        parcel.writeValue(expensesActive)
+        parcel.writeString(dateReservation)
+        parcel.writeString(timeActive)
+        parcel.writeString(state)
     }
 
     override fun describeContents(): Int {

@@ -114,8 +114,13 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             1 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_data_client, MapParkingFragment())
             }
-            2 -> supportFragmentManager.inTransaction {
-                replace(R.id.content_data_client, VehicleModifiedFragment())
+            2 -> {
+                val vehicleModifiedFragmet = VehicleModifiedFragment()
+                vehicleModifiedFragmet.arguments = bundle
+                supportFragmentManager.inTransaction {
+                replace(R.id.content_data_client, vehicleModifiedFragmet)
+            }
+
             }
             3 ->{
                 val intent = Intent(this, ReservationActivity::class.java)

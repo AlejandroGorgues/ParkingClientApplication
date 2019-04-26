@@ -9,8 +9,9 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.model.Vehicle
 
-class VehicleListAdapter(private var vehicles : Array<String>, private val context: Context) : RecyclerView.Adapter<ManagerVehViewHolder>(), View.OnClickListener {
+class VehicleListAdapter(private var vehicles : ArrayList<Vehicle>, private val context: Context) : RecyclerView.Adapter<ManagerVehViewHolder>(), View.OnClickListener {
 
     private var listener: View.OnClickListener? = null
     private var loadFragments: LoadFragments = context as LoadFragments
@@ -50,7 +51,7 @@ class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
     private var modButton: ImageButton = viewVeh.findViewById(R.id.modifiedCarButton)
 
 
-    fun bindVehicles(o: String, context: Context, loadFragments: LoadFragments) {
+    fun bindVehicles(o: Vehicle, context: Context, loadFragments: LoadFragments) {
 
         val bundle = Bundle()
         /*val androidColors =   context.resources.getIntArray(R.array.agendaColors)
@@ -63,7 +64,7 @@ class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
         modButton.setOnClickListener {
          loadFragments.loadFragment(2, bundle)
         }
-        vehicle.text = o
+        vehicle.text = o.licensePlate
 
     }
 
