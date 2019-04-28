@@ -13,12 +13,17 @@ import android.content.Intent
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.text.Layout
+import android.util.Log
 import android.view.*
 import android.widget.ImageButton
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.interfaces.UpdateVehicleList
+import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Reservation
 import com.example.parkingclientapplication.model.Vehicle
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import okhttp3.OkHttpClient
@@ -26,17 +31,21 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.net.MalformedURLException
 
+class VehicleListFragment : Fragment(), UpdateVehicleList {
 
-class VehicleListFragment : Fragment() {
 
 
     private lateinit var vehAdapter: RecyclerView.Adapter<*>
-    private lateinit var modImageButton: ImageButton
     private lateinit var vehRecyclerView: RecyclerView
     private var mClient: MobileServiceClient? = null
 
-    private var vehicleTable: MobileServiceTable<Vehicle>? = null
     private var vehicles = ArrayList<Vehicle>()
+    private var vehicleTable: MobileServiceTable<Vehicle>? = null
+    private var driverTable: MobileServiceTable<Driver>? = null
+
+
+    private lateinit var driver: Driver
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var loadFragment: LoadFragments
 
@@ -45,8 +54,9 @@ class VehicleListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_vehicle_list, container, false)
+        auth = FirebaseAuth.getInstance()
 
-
+        driver = Driver()
         loadFragment = activity as LoadFragments
         vehRecyclerView = view!!.findViewById(R.id.client_vehicle_recycler_view)
         try {
@@ -61,26 +71,15 @@ class VehicleListFragment : Fragment() {
                 client.writeTimeoutMillis()
                 client
             }
-
-            vehicleTable = mClient!!.getTable(Vehicle::class.java)
-            doAsync {
-
-                val resultQuery = vehicleTable!!.execute().get()
-                for (reservation in resultQuery){
-                    vehicles.add(reservation)
-                    uiThread {
-                        vehAdapter.notifyDataSetChanged()
-                    }
-                }
-
-            }
+            obtainTable()
 
         } catch (e: MalformedURLException) {
             AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
         } catch (e: java.lang.Exception){
             AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
-        vehAdapter = VehicleListAdapter(vehicles, context!!)
+
+        vehAdapter = VehicleListAdapter(vehicles, context!!, vehicleTable!!, this)
         (vehAdapter as VehicleListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = vehRecyclerView.getChildAdapterPosition(v)
             val bundle = Bundle()
@@ -103,6 +102,35 @@ class VehicleListFragment : Fragment() {
         return view
     }
 
+    private fun obtainTable() {
+        vehicleTable = mClient!!.getTable(Vehicle::class.java)
+        driverTable = mClient!!.getTable(Driver::class.java)
+        doAsync {
+            val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+            for (driver in resultDriverQuery){
+                val resultVehicleQuery = vehicleTable!!.where().field("idDriver").eq(driver.id).execute().get()
+                for (vehicle in resultVehicleQuery) {
+                    vehicles.add(vehicle)
+                    uiThread {
+                        vehAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+
+
+
+        }
+    }
+
+    private fun deleteVehicleTable(vehicle:Vehicle) {
+        vehicleTable!!.delete(vehicle)
+        vehicles.remove(vehicle)
+        vehAdapter.notifyDataSetChanged()
+
+    }
+
+
+
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
 
         inflater!!.inflate(R.menu.client_map, menu)
@@ -123,6 +151,19 @@ class VehicleListFragment : Fragment() {
         vehRecyclerView.adapter = vehAdapter
         vehRecyclerView.layoutManager = LinearLayoutManager(activity)
         vehRecyclerView.itemAnimator = DefaultItemAnimator()
+    }
+
+    override fun updateList(vehicle: Vehicle) {
+        deleteVehicleTable(vehicle)
+
+    }
+
+    private fun getEmail(user: FirebaseUser):String{
+        user.let {
+            // Name, email address, and profile photo Url
+            return user.email!!
+        }
+
     }
 
 

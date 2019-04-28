@@ -24,14 +24,17 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.ReservationActivity">
+        <activity android:name=".activities.ReservationActivity"
+                  android:screenOrientation="portrait">
         </activity>
         <activity
                 android:name=".activities.ClientMapActivity"
                 android:label="@string/title_activity_client_map"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.NoActionBar"
+                android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.MainActivity"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

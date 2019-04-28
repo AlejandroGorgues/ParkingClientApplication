@@ -19,8 +19,10 @@ class Reservation() : Parcelable {
     var brand: String? = null
     var expensesActive: Float? = null
     var dateReservation: String? = null
-    var timeActive: String? = null
+    var timeActive: Int? = null
     var state: String? = null
+    var idDriver: String? = null
+    var idParkingLot: String? = null
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()
@@ -29,8 +31,10 @@ class Reservation() : Parcelable {
         brand = parcel.readString()
         expensesActive = parcel.readValue(Float::class.java.classLoader) as? Float
         dateReservation = parcel.readString()
-        timeActive = parcel.readString()
+        timeActive = parcel.readInt()
         state = parcel.readString()
+        idDriver = parcel.readString()
+        idParkingLot = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -40,8 +44,10 @@ class Reservation() : Parcelable {
         parcel.writeString(brand)
         parcel.writeValue(expensesActive)
         parcel.writeString(dateReservation)
-        parcel.writeString(timeActive)
+        parcel.writeValue(timeActive)
         parcel.writeString(state)
+        parcel.writeString(idDriver)
+        parcel.writeString(idParkingLot)
     }
 
     override fun describeContents(): Int {

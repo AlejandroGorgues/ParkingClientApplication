@@ -14,7 +14,10 @@ import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.ReservationListAdapter
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Reservation
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import okhttp3.OkHttpClient
@@ -32,8 +35,11 @@ class ReservationListClientFragment() : Fragment() {
     private var mClient: MobileServiceClient? = null
 
     private var reservationTable: MobileServiceTable<Reservation>? = null
+    private var driverTable: MobileServiceTable<Driver>? = null
     private var reservations = ArrayList<Reservation>()
 
+    private lateinit var driver: Driver
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +47,9 @@ class ReservationListClientFragment() : Fragment() {
     ): View? {
 
         val view =  inflater.inflate(R.layout.fragment_reservation_list_client, container, false)
+        auth = FirebaseAuth.getInstance()
+
+        driver = Driver()
         loadFragment = activity as LoadFragments
         reservRecyclerView = view.findViewById(R.id.client_reservation_recycler_view)
         try {
@@ -57,13 +66,18 @@ class ReservationListClientFragment() : Fragment() {
             }
 
             reservationTable = mClient!!.getTable(Reservation::class.java)
+            driverTable = mClient!!.getTable(Driver::class.java)
             doAsync {
 
-                val resultQuery = reservationTable!!.execute().get()
-                for (reservation in resultQuery){
-                    reservations.add(reservation)
-                    uiThread {
-                        reservAdapter.notifyDataSetChanged()
+                val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+                for (driver in resultDriverQuery) {
+                    val resultReservQuery = reservationTable!!.where().field("idDriver").eq(driver.id).execute().get()
+                    for (reservation in resultReservQuery) {
+
+                        reservations.add(reservation)
+                        uiThread {
+                            reservAdapter.notifyDataSetChanged()
+                        }
                     }
                 }
 
@@ -79,7 +93,7 @@ class ReservationListClientFragment() : Fragment() {
         (reservAdapter as ReservationListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = reservRecyclerView.getChildAdapterPosition(v)
             val bundle = Bundle()
-            //Log.e("aqui", reservations[opt].timeReservation.toString())
+
             bundle.putParcelable("reservation", reservations[opt])
             loadFragment.loadFragment(6, bundle)
 
@@ -111,6 +125,15 @@ class ReservationListClientFragment() : Fragment() {
         reservRecyclerView.adapter = reservAdapter
         reservRecyclerView.layoutManager = LinearLayoutManager(activity)
         reservRecyclerView.itemAnimator = DefaultItemAnimator()
+    }
+
+
+    private fun getEmail(user: FirebaseUser):String{
+        user.let {
+            // Name, email address, and profile photo Url
+            return user.email!!
+        }
+
     }
 
 }

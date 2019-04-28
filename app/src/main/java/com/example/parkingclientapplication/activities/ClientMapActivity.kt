@@ -17,10 +17,13 @@ import com.example.parkingclientapplication.interfaces.LoadFragments
 import kotlinx.android.synthetic.main.activity_client_map.*
 import kotlinx.android.synthetic.main.app_bar_client_map.*
 import com.example.parkingclientapplication.interfaces.GetCurrentActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.integration.android.IntentIntegrator
 
 
 class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments,GetCurrentActivity, ActivityCompat.OnRequestPermissionsResultCallback  {
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,8 +88,10 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 }
             }
             R.id.nav_logout -> {
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                FirebaseAuth.getInstance().signOut()
+
+                //val intent = Intent(this, MainActivity::class.java)
+                //startActivity(intent)
             }
             R.id.nav_information -> {
 
@@ -124,7 +129,10 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             }
             3 ->{
                 val intent = Intent(this, ReservationActivity::class.java)
-                startActivity(intent)}
+
+                intent.putExtra("parkingSelected", bundle)
+                startActivity(intent)
+            }
             4 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_data_client, VehicleAddFragment())
             }

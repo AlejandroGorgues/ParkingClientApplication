@@ -8,13 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.interfaces.UpdateVehicleList
 import com.example.parkingclientapplication.model.Vehicle
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 
-class VehicleListAdapter(private var vehicles : ArrayList<Vehicle>, private val context: Context) : RecyclerView.Adapter<ManagerVehViewHolder>(), View.OnClickListener {
+class VehicleListAdapter(private var vehicles : ArrayList<Vehicle>, private val context: Context, private var vehicleTable: MobileServiceTable<Vehicle>, private var vehicleInterface: UpdateVehicleList) : RecyclerView.Adapter<ManagerVehViewHolder>(), View.OnClickListener {
 
     private var listener: View.OnClickListener? = null
-    private var loadFragments: LoadFragments = context as LoadFragments
 
 
     override fun onCreateViewHolder(parent: ViewGroup, pos: Int): ManagerVehViewHolder {
@@ -30,7 +33,7 @@ class VehicleListAdapter(private var vehicles : ArrayList<Vehicle>, private val 
 
     override fun onBindViewHolder(cvh: ManagerVehViewHolder, pos: Int) {
         val item = vehicles[pos]
-        cvh.bindVehicles(item, context, loadFragments)
+        cvh.bindVehicles(item, context, vehicleTable, vehicleInterface)
     }
 
     override fun onClick(view: View?) {
@@ -48,10 +51,10 @@ class VehicleListAdapter(private var vehicles : ArrayList<Vehicle>, private val 
 class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
 
     private var vehicle: TextView = viewVeh.findViewById(R.id.vehicleManager)
-    private var modButton: ImageButton = viewVeh.findViewById(R.id.modifiedCarButton)
+    private var delButton: ImageButton = viewVeh.findViewById(R.id.deleteCarButton)
 
 
-    fun bindVehicles(o: Vehicle, context: Context, loadFragments: LoadFragments) {
+    fun bindVehicles(o: Vehicle, context: Context, vehicleTable: MobileServiceTable<Vehicle>, updateList: UpdateVehicleList) {
 
         val bundle = Bundle()
         /*val androidColors =   context.resources.getIntArray(R.array.agendaColors)
@@ -61,8 +64,11 @@ class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
         drawable.setColor(randomAndroidColor)
 
         circuloView.text = c.nombre!![0].toString().toUpperCase()*/
-        modButton.setOnClickListener {
-         loadFragments.loadFragment(2, bundle)
+        delButton.setOnClickListener {
+
+            updateList.updateList(o)
+
+
         }
         vehicle.text = o.licensePlate
 

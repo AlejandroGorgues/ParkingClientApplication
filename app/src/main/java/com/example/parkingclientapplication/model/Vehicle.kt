@@ -12,6 +12,7 @@ class Vehicle() : Parcelable {
     var brand: String? = null
     var state: String? = null
     var type: String? = null
+    var idDriver: String? = null
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()
@@ -20,6 +21,7 @@ class Vehicle() : Parcelable {
         brand = parcel.readString()
         state = parcel.readString()
         type = parcel.readString()
+        idDriver = parcel.readString()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -29,6 +31,7 @@ class Vehicle() : Parcelable {
         parcel.writeString(brand)
         parcel.writeString(state)
         parcel.writeString(type)
+        parcel.writeString(idDriver)
     }
 
     override fun describeContents(): Int {

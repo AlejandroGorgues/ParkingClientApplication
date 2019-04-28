@@ -49,7 +49,7 @@ class ReservationProfileFragment : Fragment() {
         edParkingReserv.setText("Parking reserva")
         edTarjetaReserv.setText("Tarjeta usuario")
         edMatriculaReserv.setText(reservation.licensePlate)
-        edTiempoReserv.setText(reservation.timeActive)
+        edTiempoReserv.setText(reservation.timeActive.toString())
         edFechaReserv.setText(trimDate(reservation.dateReservation.toString()))
         edEstadoReserv.setText(reservation.state)
         edPrecioReserv.setText(reservation.expensesActive.toString())

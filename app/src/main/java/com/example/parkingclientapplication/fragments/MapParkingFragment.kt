@@ -155,7 +155,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                 val resultQueryLot = parkingLotTable!!.execute().get()
                 for (parkingLot in resultQueryLot){
                     maxOccupation = +1
-                    if (parkingLot.stateLot!!) occupation = +1
+                    if (parkingLot.stateLot == "free") occupation = +1
                     parkingsLot.add(parkingLot)
                 }
 
@@ -189,7 +189,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                     (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = selectedParking.nameParking
                     (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = selectedParking.direction
                     (mContents!!.findViewById(R.id.info_window_state) as TextView).text = selectedParking.stateParking.toString()
-                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = occupation.toString() + "/" + maxOccupation
+                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = "$occupation/$maxOccupation"
                     (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = selectedParking.price.toString()
 
 
@@ -274,11 +274,17 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
        return false
     }
 
-    override fun onInfoWindowClick(p0: Marker?) {
+    override fun onInfoWindowClick(marker: Marker?) {
         try
         {
             val bundle = Bundle()
-            Handler().postDelayed({  loadFragments.loadFragment(3, bundle) }, 100)
+            for (parkingAux in parkings){
+                if(parkingAux.nameParking == marker!!.title){
+                    bundle.putParcelable("parking", parkingAux)
+                    Handler().postDelayed({  loadFragments.loadFragment(3, bundle)}, 100)
+                    break
+                }
+            }
             return
         }
         catch (e:Exception) {
@@ -528,21 +534,26 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
         val gps = LatLng(location.latitude, location.longitude)
 
-        var indexMarker: Int = -1
+        var myIndexMarker: Int = -1
 
         val marker = MarkerOptions()
             .position(gps)
             .title(title)
             .icon(color)
+
+        //Si el marker de mi localización se encuentra en la lista, se obtiene su índice
         for (i in 0 until markerList.size) {
             if (markerList[i].title == marker!!.title && marker.title == "Mi localizacion") {
-                indexMarker = i
+                myIndexMarker = i
                 break
             }
         }
-        if(indexMarker != -1){
-            markerList[indexMarker].remove()
-            markerList.removeAt(indexMarker)
+
+        //Si el índice es diferente de -1, se elimina el marker de la lista al estar repetido
+        //Si no, se añade a la lista
+        if(myIndexMarker != -1){
+            markerList[myIndexMarker].remove()
+            markerList.removeAt(myIndexMarker)
             markerList.add(mapFragment!!.addMarker(marker))
         }else{
             markerList.add(mapFragment!!.addMarker(marker))

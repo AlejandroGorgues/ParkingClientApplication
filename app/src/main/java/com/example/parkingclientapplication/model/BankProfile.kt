@@ -6,4 +6,5 @@ class BankProfile {
     var securityNumber: String? = null
     var numberCard: String? = null
     var nameCard: String? = null
+    var idDriver: String? = null
 }

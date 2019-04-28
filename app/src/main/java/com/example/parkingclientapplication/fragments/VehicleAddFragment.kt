@@ -10,7 +10,10 @@ import android.widget.*
 import com.example.parkingclientapplication.AzureClient
 
 import com.example.parkingclientapplication.R
+import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Vehicle
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import okhttp3.OkHttpClient
@@ -31,12 +34,20 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var mClient: MobileServiceClient? = null
 
     private var vehicleTable: MobileServiceTable<Vehicle>? = null
+    private var driverTable: MobileServiceTable<Driver>? = null
+
+
+    private lateinit var driver: Driver
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_vehicle_add, container, false)
+        auth = FirebaseAuth.getInstance()
+
+        driver = Driver()
 
         vehSpinner = view.findViewById(R.id.spinnerVehicle)
         edMarcaAdd = view.findViewById(R.id.edMarcaAdd)
@@ -77,12 +88,15 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
 
                 vehicleTable = mClient!!.getTable(Vehicle::class.java)
+                driverTable = mClient!!.getTable(Driver::class.java)
 
                 doAsync {
-
-                  if(vehicleTable!!.insert(vehicle).isDone){
-                      Toast.makeText(context, "Insertado", Toast.LENGTH_SHORT).show()
-                  }
+                    val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+                    for (driver in resultDriverQuery) {
+                        vehicle.idDriver = driver.id
+                        vehicleTable!!.insert(vehicle)
+                        break
+                    }
 
                 }
 
@@ -111,6 +125,13 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(arg0: AdapterView<*>) {
+
+    }
+    private fun getEmail(user: FirebaseUser):String{
+        user.let {
+            // Name, email address, and profile photo Url
+            return user.email!!
+        }
 
     }
 

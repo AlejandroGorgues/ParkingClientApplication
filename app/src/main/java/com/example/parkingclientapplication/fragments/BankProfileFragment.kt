@@ -9,6 +9,9 @@ import com.example.parkingclientapplication.AzureClient
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.model.BankProfile
+import com.example.parkingclientapplication.model.Driver
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import okhttp3.OkHttpClient
@@ -29,8 +32,11 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var mClient: MobileServiceClient? = null
 
     private var bankProfileTable: MobileServiceTable<BankProfile>? = null
+    private var driverTable: MobileServiceTable<Driver>? = null
 
     private var bankP: BankProfile? = null
+    private lateinit var driver: Driver
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +51,8 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
         edNameCard = view.findViewById(R.id.edNameCard)
         edSecurityNumber = view.findViewById(R.id.edSecurityNumber)
 
-
+        auth = FirebaseAuth.getInstance()
+        driver = Driver()
         dateSpinner.onItemSelectedListener = this
         // Create an ArrayAdapter using a simple spinner layout and languages array
         val dateAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_item, resources.getStringArray(R.array.date_array))
@@ -72,20 +79,24 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
 
             bankProfileTable = mClient!!.getTable(BankProfile::class.java)
+            driverTable = mClient!!.getTable(Driver::class.java)
             doAsync {
 
-                val resultQuery = bankProfileTable!!.execute().get()
-                for (bankProfile in resultQuery){
+                val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+                for (driver in resultDriverQuery) {
+                    val resultBankQuery = bankProfileTable!!.where().field("idDriver").eq(driver.id).execute().get()
+                    for (bankProfile in resultBankQuery) {
 
-                    bankP = bankProfile
-                    uiThread {
-                        edNumberCard.setText(bankProfile.numberCard)
-                        edNameCard.setText(bankProfile.nameCard)
-                        edSecurityNumber.setText(bankProfile.securityNumber)
-                        dateSpinner.setSelection(dateAdapter.getPosition(bankProfile.dateCard))
+                        bankP = bankProfile
+                        uiThread {
+                            edNumberCard.setText(bankProfile.numberCard)
+                            edNameCard.setText(bankProfile.nameCard)
+                            edSecurityNumber.setText(bankProfile.securityNumber)
+                            dateSpinner.setSelection(dateAdapter.getPosition(bankProfile.dateCard))
+
+                        }
 
                     }
-
                 }
 
 
@@ -134,6 +145,14 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(arg0: AdapterView<*>) {
+
+    }
+
+    private fun getEmail(user: FirebaseUser):String{
+        user.let {
+            // Name, email address, and profile photo Url
+            return user.email!!
+        }
 
     }
 }

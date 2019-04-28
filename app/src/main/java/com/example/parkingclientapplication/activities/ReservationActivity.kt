@@ -11,6 +11,7 @@ import com.example.parkingclientapplication.fragments.VehicleSelectionFragment
 import com.example.parkingclientapplication.inTransSelection
 import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.model.Parking
 import kotlinx.android.synthetic.main.app_bar_reservation.*
 
 class ReservationActivity : AppCompatActivity(), LoadFragments {
@@ -21,8 +22,10 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
         setContentView(R.layout.activity_reservation)
 
 
+        val vehicleSelecionFragment = VehicleSelectionFragment()
+        vehicleSelecionFragment.arguments = intent.getBundleExtra("parkingSelected")
         supportFragmentManager.inTransSelection {
-            replace(R.id.content_client_reservation, VehicleSelectionFragment())
+            replace(R.id.content_client_reservation, vehicleSelecionFragment)
         }
         setSupportActionBar(ReservationToolbar)
         ReservationToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
@@ -43,8 +46,11 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
 
     override fun loadFragment(fragment: Int, bundle:Bundle) {
         when (fragment) {
-            1 -> supportFragmentManager.inTransSelection {
-                replace(R.id.content_client_reservation, ConfirmSelectionFragment())
+            1 -> {
+                val confirmSelectionFragment = ConfirmSelectionFragment()
+                confirmSelectionFragment.arguments = bundle
+                supportFragmentManager.inTransSelection {
+                replace(R.id.content_client_reservation, confirmSelectionFragment)}
             }
             2 -> {
                 val intent = Intent(this, ClientMapActivity::class.java)

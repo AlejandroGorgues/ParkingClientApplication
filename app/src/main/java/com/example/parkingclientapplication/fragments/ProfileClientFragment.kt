@@ -21,6 +21,8 @@ import android.widget.Button
 import android.widget.EditText
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.model.Driver
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.uiThread
@@ -38,8 +40,10 @@ class ProfileClientFragment : Fragment() {
 
     private var driverTable: MobileServiceTable<Driver>? = null
     private lateinit var driver: Driver
+    private lateinit var driverAux: Driver
 
-
+    private lateinit var auth: FirebaseAuth
+    private lateinit var user: FirebaseUser
     /**
      * Progress spinner to use for table operations
      */
@@ -52,10 +56,12 @@ class ProfileClientFragment : Fragment() {
     ): View? {
 
         val view =  inflater.inflate(R.layout.fragment_profile_client, container, false)
+        auth = FirebaseAuth.getInstance()
         edPassword = view.findViewById(R.id.edPassword)
         edEmail = view.findViewById(R.id.edEmail)
         edName = view.findViewById(R.id.edName)
         bUpdate = view.findViewById(R.id.buttonUpdate)
+
         try {
         // Create the client instance, using the provided mobile app URL.
             mClient = AzureClient.getInstance(context!!).getClient()
@@ -71,14 +77,14 @@ class ProfileClientFragment : Fragment() {
 
             driverTable = mClient!!.getTable(Driver::class.java)
             doAsync {
-
-                val resultQuery = driverTable!!.where().field("username").eq("agorgues").execute().get()
+                val resultQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
                 for (profile in resultQuery){
                     driver = profile
+                    driverAux = profile
                     uiThread {
-                        edName.setText(profile.username)
-                        edPassword.setText(profile.password)
-                        edEmail.setText(profile.email)
+                        edName.setText(driver.username)
+                        edPassword.setText(driver.password)
+                        edEmail.setText(driver.email)
                     }
 
 
@@ -146,7 +152,27 @@ class ProfileClientFragment : Fragment() {
             })
 
         bUpdate.setOnClickListener {
+
+            driver.email = edEmail.text.toString()
+            driver.password = edPassword.text.toString()
+            driver.username = edName.text.toString()
             doAsync {
+                if(driver.email != driverAux.email){
+                    user.updateEmail(driver.email!!)
+                        .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            //Log.d(TAG, "User email address updated.")
+                        }
+                    }
+                }
+                if(driver.password != driverAux.password){
+                    user.updatePassword(driverAux.password!!)
+                        .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            //Log.d(TAG, "User password updated.")
+                        }
+                    }
+                }
                 driverTable!!.update(driver).get()
             }
         }
@@ -167,6 +193,20 @@ class ProfileClientFragment : Fragment() {
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        user = auth.currentUser!!
+
+    }
+
+    private fun getEmail(user: FirebaseUser):String{
+        user.let {
+            // Name, email address, and profile photo Url
+            return user.email!!
         }
 
     }
