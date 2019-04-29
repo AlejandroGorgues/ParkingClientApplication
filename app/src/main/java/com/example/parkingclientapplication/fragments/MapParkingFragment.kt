@@ -29,6 +29,7 @@ import com.akexorcist.googledirection.util.DirectionConverter
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.SingletonHolder
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.ParkingLot
 import com.google.android.gms.location.LocationServices
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.model.*
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import kotlinx.android.synthetic.main.item_row.*
+import kotlinx.android.synthetic.main.nav_header_client_map.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -51,6 +53,9 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
 
     lateinit var mapView: MapView
+
+    //private lateinit var txtUsername: TextView
+    //private lateinit var txtEmail: TextView
     var mapFragment: GoogleMap? = null
 
     private var permissions: ArrayList<String> = ArrayList()
@@ -75,7 +80,8 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     private var parkingLotTable: MobileServiceTable<ParkingLot>? = null
 
     private var parkings = ArrayList<Parking>()
-    private var parkingsLot = ArrayList<ParkingLot>()
+
+    private lateinit var viewAux: View
 
 
     override fun onCreateView(
@@ -84,6 +90,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_map_parking, container, false)
+        viewAux = view
         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -91,6 +98,9 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
         currentLocation = Location("")
         randomLocation = Location("")
+
+
+
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
@@ -101,7 +111,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         // Inflate the layout for this fragment
         return view
     }
-
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
 
         inflater!!.inflate(R.menu.map_menu, menu)
@@ -113,7 +122,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
             R.id.action_location ->{
                 manageLocation()
                 true
@@ -148,19 +156,11 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                 client
             }
 
+
             parkingTable = mClient!!.getTable(Parking::class.java)
-            parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
             doAsync {
-
-                val resultQueryLot = parkingLotTable!!.execute().get()
-                for (parkingLot in resultQueryLot){
-                    maxOccupation = +1
-                    if (parkingLot.stateLot == "free") occupation = +1
-                    parkingsLot.add(parkingLot)
-                }
-
                 val resultQueryParking = parkingTable!!.execute().get()
-                for (parking in resultQueryParking){
+                for (parking in resultQueryParking) {
                     parkings.add(parking)
                     randomLocation!!.latitude = parking.latitude!!.toDouble()
                     randomLocation!!.longitude = parking.longitude!!.toDouble()
@@ -168,10 +168,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                     uiThread {
                         drawMarker(randomLocation!!, parking.nameParking!!, parking.price!!)
                     }
-
                 }
-
-
             }
 
             mapFragment!!.setInfoWindowAdapter(object:GoogleMap.InfoWindowAdapter {
@@ -186,12 +183,20 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
                     val selectedParking: Parking = parkings.single { parking -> parking.nameParking == marker.title}
 
+
+                    val estado = if (selectedParking.stateParking!!){
+                        "abierto"
+                    }else{
+                        "Cerrado"
+                    }
+
                     (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = selectedParking.nameParking
                     (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = selectedParking.direction
-                    (mContents!!.findViewById(R.id.info_window_state) as TextView).text = selectedParking.stateParking.toString()
-                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = "$occupation/$maxOccupation"
-                    (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = selectedParking.price.toString()
-
+                    (mContents!!.findViewById(R.id.info_window_state) as TextView).text = estado
+                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = selectedParking.occupation.toString() + "/" + selectedParking.maxOccupation.toString()
+                    (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = selectedParking.price.toString() +"€/h"
+                    maxOccupation = 0
+                    occupation = 0
 
                     return mContents!!
                 }
@@ -259,18 +264,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
     override fun onMarkerClick(marker: Marker?): Boolean {
 
-        //getDirection(marker!!.position)
-        // Retrieve the data from the marker.
-        /*var clickCount:Int? = marker!!.tag as Int
-
-        // Check if a click count was set, then display the click count.
-        if (clickCount != null)
-        {
-            clickCount += 1
-            marker.tag = clickCount
-            Toast.makeText(context,marker.title + " has been clicked " + clickCount + " times.", Toast.LENGTH_SHORT).show()
-        }*/
-
        return false
     }
 
@@ -295,6 +288,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     override fun onLocationChanged(location: Location?) {
         getCurrentLocation()
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -560,5 +554,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         }
 
     }
+
 
 }

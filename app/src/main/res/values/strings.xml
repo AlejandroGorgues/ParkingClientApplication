@@ -94,16 +94,5 @@
 
     <string name="error_processing_barcode">Unable to process barcode</string>
 
-    <string name="anyline_license_key" translatable="false">
-        eyJzY29wZSI6WyJBTEwiXSwicGxhdGZvcm0iOlsiaU9TIiwiQW5kcm9pZCIsIldpbmRvd3MiXSwidmFsaWQ\n
-        iOiIyMDE5LTA0LTI4IiwibWFqb3JWZXJzaW9uIjozLCJtYXhEYXlzTm90UmVwb3J0ZWQiOjUsInNob3dXYXRlcm1hcmsiOnRydWUsInBpbmdSZXBvcnRpbmciOnRydWUsImRlYn\n
-        VnUmVwb3J0aW5nIjoib3B0LW91dCIsInRvbGVyYW5jZURheXMiOjUsInNob3dQb3BVcEFmdGVyRXhwaXJ5Ijp0cnVlLCJpb3NJZGVudGlmaWVyIjpbImNvbS5leGFtcGxlLnBhc\n
-        mtpbmdjbGllbnRhcHBsaWNhdGlvbiJdLCJhbmRyb2lkSWRlbnRpZmllciI6WyJjb20uZXhhbXBsZS5wYXJraW5nY2xpZW50YXBwbGljYXRpb24iXSwid2luZG93c0lkZW50aWZp\n
-        ZXIiOlsiY29tLmV4YW1wbGUucGFya2luZ2NsaWVudGFwcGxpY2F0aW9uIl19ClBDZ3ZzK1JteFZYOWJmaWNCb0MvZWpVa3g4SjRSV2prZFZkRm1Da0NrTHVJVk5sV1ZWTUw4OVF\n
-        FcjZ4MmFwZG42T2xaSTIzMmM2bGNDQkpPRU1MQVhHV1VzWUcvOGRXRHZucVJnTzNEaStOYzFhczk0d2hKMzNWUFF5cXYzanFCNU91Y1VZS1dYM1E5TjZsNS9ZUXJpa1A2azRZSW\n
-        1QOWU1TkZkZXNZcDV1VEtuT0E3YjVxckFLSUFGOFFYZlJLRThKTllyUCtmNXNxL0ZBdnQ4cVo2RWc5TWtiOTBPa0wyT0ZOdmlyNm5ISnFjQjFwOFEwY2dnMHV0eGpzUzdYWUdSa\n
-        UV2ZlFGaVJ1Nkk1UmxidmN2VjY5RUNJZjBzL0pBdjZ5NTNsalNDOXoveWMzcStxMUc4ak9Gek1XUHJjV2Q5WVJqTUI0ckd5UEpVSHJJRGlLY05ydz09
-    </string>
-
 
 </resources>

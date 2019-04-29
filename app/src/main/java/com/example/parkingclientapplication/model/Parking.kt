@@ -12,6 +12,8 @@ class Parking(): Parcelable {
     var price: Float? = null
     var stateParking: Boolean? = null
     var description: String? = null
+    var maxOccupation: Int? = null
+    var occupation: Int? = null
 
     constructor(parcel: Parcel) : this() {
         id = parcel.readString()
@@ -22,6 +24,8 @@ class Parking(): Parcelable {
         price = parcel.readValue(Float::class.java.classLoader) as? Float
         stateParking = parcel.readValue(Boolean::class.java.classLoader) as? Boolean
         description = parcel.readString()
+        maxOccupation = parcel.readInt()
+        occupation = parcel.readInt()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -33,6 +37,8 @@ class Parking(): Parcelable {
         parcel.writeValue(price)
         parcel.writeValue(stateParking)
         parcel.writeString(description)
+        parcel.writeValue(maxOccupation)
+        parcel.writeValue(occupation)
     }
 
     override fun describeContents(): Int {

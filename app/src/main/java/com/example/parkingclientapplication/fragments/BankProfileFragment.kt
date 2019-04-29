@@ -3,6 +3,7 @@ package com.example.parkingclientapplication.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.transition.Visibility
 import android.view.*
 import android.widget.*
 import com.example.parkingclientapplication.AzureClient
@@ -22,8 +23,10 @@ import java.net.MalformedURLException
 
 class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
-    private lateinit var  dateSpinner: Spinner
-    private lateinit var bBankProfile: Button
+    private lateinit var dateSpinner: Spinner
+    private lateinit var bUpdateBankProfile: Button
+    private lateinit var bCreateBankProfile: Button
+    private lateinit var bDeleteBankProfile: Button
 
     private lateinit var edNumberCard: EditText
     private lateinit var edNameCard: EditText
@@ -35,7 +38,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var driverTable: MobileServiceTable<Driver>? = null
 
     private var bankP: BankProfile? = null
-    private lateinit var driver: Driver
+    private lateinit var driverF: Driver
     private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
@@ -46,13 +49,17 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val view =  inflater.inflate(R.layout.fragment_bank_profile, container, false)
 
         dateSpinner = view.findViewById(R.id.date_spinner)
-        bBankProfile = view.findViewById(R.id.bBankProfile)
+        bUpdateBankProfile = view.findViewById(R.id.bUpdateBankProfile)
+        bCreateBankProfile = view.findViewById(R.id.bCreateBankProfile)
+        bDeleteBankProfile = view.findViewById(R.id.bDeleteBankProfile)
+
         edNumberCard = view.findViewById(R.id.edNumberCard)
         edNameCard = view.findViewById(R.id.edNameCard)
         edSecurityNumber = view.findViewById(R.id.edSecurityNumber)
 
         auth = FirebaseAuth.getInstance()
-        driver = Driver()
+        driverF = Driver()
+        bankP = BankProfile()
         dateSpinner.onItemSelectedListener = this
         // Create an ArrayAdapter using a simple spinner layout and languages array
         val dateAdapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_item, resources.getStringArray(R.array.date_array))
@@ -61,58 +68,36 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Set Adapter to Spinner
         dateSpinner.adapter = dateAdapter
 
-        bBankProfile.setOnClickListener {
+        bUpdateBankProfile.setOnClickListener {
             doAsync {
                 bankProfileTable!!.update(bankP).get()
             }
         }
 
-        try {
-            // Create the client instance, using the provided mobile app URL.
-            mClient = AzureClient.getInstance(context!!).getClient()
-
-            mClient!!.setAndroidHttpClientFactory {
-                val client = OkHttpClient()
-                client.readTimeoutMillis()
-                client.writeTimeoutMillis()
-                client
-            }
-
-            bankProfileTable = mClient!!.getTable(BankProfile::class.java)
-            driverTable = mClient!!.getTable(Driver::class.java)
+        bCreateBankProfile.setOnClickListener {
             doAsync {
+                bankP!!.securityNumber = edSecurityNumber.text.toString()
+                bankP!!.dateCard = dateSpinner.selectedItem.toString()
+                bankP!!.numberCard = edNumberCard.text.toString()
+                bankP!!.nameCard = edNameCard.text.toString()
+                bankP!!.id = ""
+                bankP!!.idDriver = driverF.id
 
-                val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
-                for (driver in resultDriverQuery) {
-                    val resultBankQuery = bankProfileTable!!.where().field("idDriver").eq(driver.id).execute().get()
-                    for (bankProfile in resultBankQuery) {
-
-                        bankP = bankProfile
-                        uiThread {
-                            edNumberCard.setText(bankProfile.numberCard)
-                            edNameCard.setText(bankProfile.nameCard)
-                            edSecurityNumber.setText(bankProfile.securityNumber)
-                            dateSpinner.setSelection(dateAdapter.getPosition(bankProfile.dateCard))
-
-                        }
-
-                    }
-                }
-
-
+                bankProfileTable!!.insert(bankP).get()
             }
 
-
-
-        } catch (e: MalformedURLException) {
-            AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
-        } catch (e: java.lang.Exception){
-            AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
+        bDeleteBankProfile.setOnClickListener {
+            bankProfileTable!!.delete(bankP)
+        }
+
+        getBankData(dateAdapter)
 
         setHasOptionsMenu(true)
         return view
     }
+
+
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
 
@@ -154,5 +139,55 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
             return user.email!!
         }
 
+    }
+    private fun getBankData(dateAdapter: ArrayAdapter<String>) {
+        try {
+            // Create the client instance, using the provided mobile app URL.
+            mClient = AzureClient.getInstance(context!!).getClient()
+
+            mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }
+
+            bankProfileTable = mClient!!.getTable(BankProfile::class.java)
+            driverTable = mClient!!.getTable(Driver::class.java)
+            doAsync {
+
+                val resultDriverQuery =
+                    driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+                for (driver in resultDriverQuery) {
+                    driverF = driver
+                    val resultBankQuery = bankProfileTable!!.where().field("idDriver").eq(driver.id).execute().get()
+                    if (resultBankQuery.size == 0) {
+                        bUpdateBankProfile.visibility = View.INVISIBLE
+                        bDeleteBankProfile.visibility = View.INVISIBLE
+                    } else {
+                        bCreateBankProfile.visibility = View.INVISIBLE
+                        for (bankProfile in resultBankQuery) {
+
+                            bankP = bankProfile
+                            uiThread {
+                                edNumberCard.setText(bankProfile.numberCard)
+                                edNameCard.setText(bankProfile.nameCard)
+                                edSecurityNumber.setText(bankProfile.securityNumber)
+                                dateSpinner.setSelection(dateAdapter.getPosition(bankProfile.dateCard))
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        } catch (e: MalformedURLException) {
+            AzureClient.getInstance(context!!).createAndShowDialog(
+                Exception("There was an error creating the Mobile Service. Verify the URL"),
+                "Error"
+            )
+        } catch (e: java.lang.Exception) {
+            AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.example.parkingclientapplication.fragments.LoginClientFragment
 import com.example.parkingclientapplication.fragments.RegisterClientFragment
 import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
+import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), LoadFragments {
 
@@ -14,15 +15,16 @@ class MainActivity : AppCompatActivity(), LoadFragments {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportFragmentManager.inTransaction {
-            add(R.id.form_login, LoginClientFragment())
+            add(R.id.content_client_access, LoginClientFragment())
         }
+        setSupportActionBar(MainAccessToolbar)
 
     }
 
     override fun loadFragment(fragment: Int, bundle: Bundle) {
         when (fragment) {
             1 -> supportFragmentManager.inTransaction {
-                replace(R.id.form_login, RegisterClientFragment())
+                replace(R.id.content_client_access, RegisterClientFragment())
             }
         }
     }

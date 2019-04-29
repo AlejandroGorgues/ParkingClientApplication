@@ -22,9 +22,6 @@ import com.google.zxing.integration.android.IntentIntegrator
 
 
 class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments,GetCurrentActivity, ActivityCompat.OnRequestPermissionsResultCallback  {
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_client_map)
@@ -90,18 +87,13 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_logout -> {
                 FirebaseAuth.getInstance().signOut()
 
-                //val intent = Intent(this, MainActivity::class.java)
-                //startActivity(intent)
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
             R.id.nav_information -> {
 
                 supportFragmentManager.inTransaction {
                     replace(R.id.content_data_client, QrClientFragment(), "qr")
-                }
-            }
-            R.id.nav_license_plate -> {
-                supportFragmentManager.inTransaction {
-                    replace(R.id.content_data_client, LicensePlateRecognition(), "license")
                 }
             }
             R.id.nav_guide -> {

@@ -119,10 +119,10 @@ class ConfirmSelectionFragment : Fragment() {
                     for (parkingLot in resultParkingLotQuery){
                         parkingLots.add(parkingLot)
                     }
-                    while (parkingLot.stateLot == "free"){
-                        parkingLots.remove(parkingLot)
-                        parkingLot = parkingLots[(0..parkingLots.size).random()]
-                    }
+
+                    do {
+                        parkingLot = parkingLots[(0 until parkingLots.size).random()]
+                    }while (parkingLot.stateLot != "free")
 
                     val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
                     for (driver in resultDriverQuery){

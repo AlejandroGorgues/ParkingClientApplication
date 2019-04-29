@@ -63,25 +63,9 @@ class QrClientFragment : Fragment() {
             integrator.setBeepEnabled(false)   //Enable scan sound for success or failure
             integrator.initiateScan()
         }
-        setHasOptionsMenu(true)
+
         // Inflate the layout for this fragment
         return view
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-
-        inflater!!.inflate(R.menu.client_map, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun encodeAsBitmap(contents:String?, format:BarcodeFormat, imgWidth:Int, imgHeight:Int): Bitmap? {

@@ -44,9 +44,7 @@ class ProfileClientFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var user: FirebaseUser
-    /**
-     * Progress spinner to use for table operations
-     */
+
 
     private val mProgressBar: ProgressBar? = null
 
@@ -176,25 +174,8 @@ class ProfileClientFragment : Fragment() {
                 driverTable!!.update(driver).get()
             }
         }
-        setHasOptionsMenu(true)
+
         return view
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-
-        inflater!!.inflate(R.menu.client_map, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-
     }
 
     override fun onStart() {

@@ -6,7 +6,6 @@
               android:orientation="vertical"
               tools:context=".fragments.BankProfileFragment">
 
-
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,7 +65,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/edSecurityNumber"
-                        android:hint="@string/brand"/>
+                        android:hint="Security number"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -92,12 +91,37 @@
             android:hint="Nombre"/>
     </android.support.design.widget.TextInputLayout>
 
+    <LinearLayout android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  android:orientation="horizontal">
+
+
+        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
     <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:id="@+id/bBankProfile"
+            android:id="@+id/bUpdateBankProfile"
             android:textColor="@color/whiteText"
             app:backgroundTint="@color/blueButton"
             android:text="Guardar Cambios"/>
+
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/bCreateBankProfile"
+            android:textColor="@color/whiteText"
+            app:backgroundTint="@color/blueButton"
+            android:text="Asociar perfil bancario"/>
+        </FrameLayout>
+
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/bDeleteBankProfile"
+            android:textColor="@color/whiteText"
+            app:backgroundTint="@color/blueButton"
+            android:text="Borrar perfil bancario"/>
+
+    </LinearLayout>
 
 </LinearLayout>

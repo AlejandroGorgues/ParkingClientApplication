@@ -1,1 +1,1 @@
-include ':app', ':anylinesdk-9'
+include ':app'

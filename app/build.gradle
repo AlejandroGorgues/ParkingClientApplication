@@ -9,8 +9,6 @@ apply plugin: 'com.google.gms.google-services'
 repositories {
     mavenCentral()
 
-    maven { url 'https://anylinesdk.blob.core.windows.net/maven/' }
-
     maven { url "https://jitpack.io" }
 }
 
@@ -52,10 +50,7 @@ dependencies {
 
     implementation 'com.akexorcist:googledirectionlibrary:1.0.4'
 
-    implementation 'io.anyline:anylinesdk:9@aar'
-
     implementation 'com.google.firebase:firebase-auth:16.2.1'
-    implementation 'com.google.firebase:firebase-ml-vision:19.0.3'
 
     implementation 'com.microsoft.azure:azure-mobile-android:3.5.1'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
