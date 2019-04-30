@@ -40,6 +40,7 @@ import kotlinx.android.synthetic.main.item_row.*
 import kotlinx.android.synthetic.main.nav_header_client_map.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.uiThread
 import java.io.IOException
 import java.net.MalformedURLException
@@ -63,7 +64,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
     private lateinit var loadFragments: LoadFragments
 
-    private var location: Location? = null
+    private var locationLatLng: LatLng? = null
 
     private var uiSettings: UiSettings? = null
 
@@ -162,11 +163,11 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                 val resultQueryParking = parkingTable!!.execute().get()
                 for (parking in resultQueryParking) {
                     parkings.add(parking)
-                    randomLocation!!.latitude = parking.latitude!!.toDouble()
-                    randomLocation!!.longitude = parking.longitude!!.toDouble()
 
-                    uiThread {
-                        drawMarker(randomLocation!!, parking.nameParking!!, parking.price!!)
+
+                    context!!.runOnUiThread {
+                        locationLatLng = LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble())
+                        drawMarker(locationLatLng!!, parking.nameParking!!, parking.price!!)
                     }
                 }
             }
@@ -352,7 +353,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
     private fun getDirection(marker: LatLng){
         GoogleDirection.withServerKey("AIzaSyBn0JtWo8gDx4MIUwBdGISs7_YimRHqy7A")
-            .from(LatLng(location!!.latitude, location!!.longitude))
+            .from(LatLng(locationLatLng!!.latitude, locationLatLng!!.longitude))
             .to(LatLng(marker.latitude, marker.longitude))
             .execute(object: DirectionCallback {
                 override fun onDirectionSuccess(direction: Direction, rawBody:String) {
@@ -394,7 +395,8 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                 mFusedLocationClient.lastLocation
                     .addOnSuccessListener { location ->
                         currentLocation = location
-                        drawMarker(currentLocation!!, "Mi localizacion", 0F)
+                        locationLatLng = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                        drawMarker(locationLatLng!!, "Mi localizacion", 0F)
                     }
 
                     .addOnFailureListener { e -> e.printStackTrace() }
@@ -507,16 +509,19 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         }
     }
 
-    private fun drawMarker(location: Location, title: String, price: Float) {
+    private fun drawMarker(location: LatLng, title: String, price: Float) {
 
 
         val color: BitmapDescriptor = when {
             price > 4  ->
                 BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                    .defaultMarker(BitmapDescriptorFactory.HUE_RED)
+            price > 2.5F && price <= 4  ->
+                BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)
             price == 2.5F ->
                 BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                    .defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
             price < 2.5F  && price > 0F ->
                 BitmapDescriptorFactory
                     .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
@@ -525,13 +530,10 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
                     .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
         }
 
-
-        val gps = LatLng(location.latitude, location.longitude)
-
         var myIndexMarker: Int = -1
 
         val marker = MarkerOptions()
-            .position(gps)
+            .position(location)
             .title(title)
             .icon(color)
 

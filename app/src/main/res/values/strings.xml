@@ -14,11 +14,10 @@
     <string name="logout">Logout</string>
 
     <!-- Vehicles list -->
-    <string name="Vehicle">Select a vehicle</string>
-    <string name="Car">Car</string>
-    <string name="Motorbike">Motorbike</string>
-    <string name="Bike">Bike</string>
-    <string name="Truck">Truck</string>
+    <string name="Vehicle">Selecciona un vehículo</string>
+    <string name="Car">Coche</string>
+    <string name="Motorbike">Moto</string>
+    <string name="Truck">Camión</string>
     <string name="brand">Brand</string>
     <string name="model">Model</string>
     <string name="registration_number">Registration Number</string>
@@ -28,7 +27,6 @@
         <item>@string/Vehicle</item>
         <item>@string/Car</item>
         <item>@string/Motorbike</item>
-        <item>@string/Bike</item>
         <item>@string/Truck</item>
     </string-array>
 

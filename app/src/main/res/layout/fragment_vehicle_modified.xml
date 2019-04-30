@@ -27,7 +27,7 @@
                 android:id="@+id/edMarcaVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/brand"/>
+                android:hint="Marca"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -39,7 +39,7 @@
                 android:id="@+id/edModeloVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/model"/>
+                android:hint="Modelo"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -51,7 +51,7 @@
                 android:id="@+id/edMatriculaVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/registration_number"/>
+                android:hint="Matrícula"/>
 
     </android.support.design.widget.TextInputLayout>
 

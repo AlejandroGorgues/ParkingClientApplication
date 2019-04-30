@@ -115,7 +115,7 @@ class ConfirmSelectionFragment : Fragment() {
 
                 doAsync {
 
-                    val resultParkingLotQuery = parkingLotTable!!.execute().get()
+                    val resultParkingLotQuery = parkingLotTable!!.where().field("idParking").eq(parking.id).execute().get()
                     for (parkingLot in resultParkingLotQuery){
                         parkingLots.add(parkingLot)
                     }

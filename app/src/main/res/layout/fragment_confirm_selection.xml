@@ -20,7 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/edUsernameConfirm"
-                android:hint="Username"/>
+                android:hint="Usuario"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/edVehicleConfirm"
-                android:hint="License Plate"/>
+                android:hint="Matrícula"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/edParkingConfirm"
-                android:hint="Parking"/>
+                android:hint="Aparcamiento"/>
 
     </android.support.design.widget.TextInputLayout>
 

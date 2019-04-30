@@ -37,7 +37,7 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
             }else{
                 supportFragmentManager.popBackStack()
             }
-            Toast.makeText(this, supportFragmentManager.backStackEntryCount.toString(), Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, supportFragmentManager.backStackEntryCount.toString(), Toast.LENGTH_SHORT).show()
 
         }
 

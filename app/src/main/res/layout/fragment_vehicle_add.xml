@@ -28,7 +28,7 @@
                 android:id="@+id/edMarcaAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/brand"/>
+                android:hint="Marca"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -40,7 +40,7 @@
                 android:id="@+id/edModeloAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/model"/>
+                android:hint="Modelo"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -53,7 +53,7 @@
                 android:id="@+id/edMatriculaAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="LicensePlate"/>
+                android:hint="Matrícula"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -62,7 +62,7 @@
             android:id="@+id/buttonContinue1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/confirmed_data"
+            android:text="Añadir vehículo"
             android:textColor="@color/whiteText"
             android:layout_gravity="center"
             app:backgroundTint="@color/blueButton"/>

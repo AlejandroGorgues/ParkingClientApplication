@@ -26,6 +26,9 @@ class MainActivity : AppCompatActivity(), LoadFragments {
             1 -> supportFragmentManager.inTransaction {
                 replace(R.id.content_client_access, RegisterClientFragment())
             }
+            2 -> supportFragmentManager.inTransaction {
+                replace(R.id.content_client_access, LoginClientFragment())
+            }
         }
     }
 }

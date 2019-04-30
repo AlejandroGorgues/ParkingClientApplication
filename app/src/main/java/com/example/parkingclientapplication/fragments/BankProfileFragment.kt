@@ -124,7 +124,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
         else{
 
-            Toast.makeText(context, dateSpinner.selectedItem.toString(), Toast.LENGTH_LONG).show()
+            //Toast.makeText(context, dateSpinner.selectedItem.toString(), Toast.LENGTH_LONG).show()
 
         }
     }
