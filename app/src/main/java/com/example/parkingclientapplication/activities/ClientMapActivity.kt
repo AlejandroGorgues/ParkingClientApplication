@@ -22,6 +22,8 @@ import com.google.zxing.integration.android.IntentIntegrator
 
 
 class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments,GetCurrentActivity, ActivityCompat.OnRequestPermissionsResultCallback  {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_client_map)

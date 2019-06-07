@@ -1,5 +1,8 @@
 package com.example.parkingclientapplication.activities
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.example.parkingclientapplication.R
@@ -11,6 +14,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), LoadFragments {
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -18,6 +22,7 @@ class MainActivity : AppCompatActivity(), LoadFragments {
             add(R.id.content_client_access, LoginClientFragment())
         }
         setSupportActionBar(MainAccessToolbar)
+
 
     }
 
