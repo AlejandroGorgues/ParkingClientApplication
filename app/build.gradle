@@ -8,7 +8,7 @@ apply plugin: 'com.google.gms.google-services'
 
 repositories {
     mavenCentral()
-
+    jcenter()
     maven { url "https://jitpack.io" }
 }
 
@@ -47,6 +47,11 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
+
+    implementation 'org.altbeacon:android-beacon-library:2+'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.8'
+    implementation "com.polidea.rxandroidble2:rxandroidble:1.10.0"
 
     implementation 'com.akexorcist:googledirectionlibrary:1.0.4'
 

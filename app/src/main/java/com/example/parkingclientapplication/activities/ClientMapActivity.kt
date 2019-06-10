@@ -99,7 +99,8 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 }
             }
             R.id.nav_guide -> {
-
+                val intent = Intent(this, GuideActivity::class.java)
+                startActivity(intent)
             }
 
         }
