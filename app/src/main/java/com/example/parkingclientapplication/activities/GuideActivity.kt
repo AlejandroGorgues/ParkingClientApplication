@@ -17,11 +17,8 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.interfaces.LoadFragments
-import com.polidea.rxandroidble2.RxBleClient
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.app_bar_guide.*
 import java.util.*
-import io.reactivex.internal.disposables.DisposableHelper.dispose
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
@@ -30,7 +27,7 @@ import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import org.altbeacon.beacon.BeaconManager
+import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 
 
@@ -40,11 +37,9 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     private var beaconList: ArrayList<String>? = null
     private var beaconListView: ListView? = null
     private var adapter: ArrayAdapter<String>? = null
-    private var beaconManager: BeaconManager? = null
     private var handler: Handler? = null
     private var mLEScanner: BluetoothLeScanner? = null
     private var mGatt: BluetoothGatt? = null
-    private var rxBleClient: RxBleClient? = null
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy(LazyThreadSafetyMode.NONE) {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -62,7 +57,6 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         beaconListView = findViewById(R.id.listView)
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, beaconList)
         beaconListView!!.adapter = adapter
-        rxBleClient = RxBleClient.create(this)
         bluetoothAdapter?.takeIf { it.isDisabled }?.apply {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, 1)
@@ -89,7 +83,6 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         Guidetoolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
         Guidetoolbar.setNavigationOnClickListener {
             /*if (supportFragmentManager.backStackEntryCount == 1){
-
                 val intent = Intent(this, ClientMapActivity::class.java)
                 startActivity(intent)
             }else{
@@ -232,7 +225,16 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             val services = gatt.services
 
             Log.i("onServicesDiscovered", services.toString())
-            gatt.readCharacteristic(services[2].characteristics[0])
+
+            val characteristicList = services[2].characteristics
+            for (characteristic in characteristicList){
+                if(isCharacterisitcReadable(characteristic)){
+                    gatt.readCharacteristic(characteristic)
+                }else{
+                    val descriptor = characteristic.getDescriptor()
+                    gatt.writeDescriptor(descriptor)
+                }
+            }
         }
         override fun onCharacteristicRead(gatt:BluetoothGatt,
                                           characteristic:BluetoothGattCharacteristic, status:Int) {
@@ -245,7 +247,22 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
 
             gatt.disconnect()
         }
+
+        override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
+            super.onDescriptorWrite(gatt, descriptor, status)
+            val characteristic = gatt!!.getService(HEART_RATE_SERVICE_UUID)
+                .getCharacteristic(HEART_RATE_CONTROL_POINT_CHAR_UUID)
+            characteristic.value = byteArrayOf(1, 1)
+            gatt.writeCharacteristic(characteristic)
+        }
+
+        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+            super.onCharacteristicChanged(gatt, characteristic)
+            processData(characteristic!!.value)
+        }
     }
+
+
 
     private fun broadcastUpdate(action: String) {
         val intent = Intent(action)
@@ -260,28 +277,9 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         // parsing is carried out as per profile specifications.
         when (characteristic.uuid) {
             UUID.fromString("69d9fdd7-34fa-4987-aa3f-43b5f4cabcbf") -> {
-                /*Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 1).toString())
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 2).toString())
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 3).toString())
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 4).toString())*/
                 val flag = characteristic.properties
-                    Log.e("aqui", characteristic.getIntValue(FORMAT_SINT8, 1).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT16, 1).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT32, 1).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT8, 2).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT16, 2).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT32, 2).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT8, 3).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT16, 3).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT32, 3).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT8, 4).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT16, 4).toString())
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT32, 4).toString())
+                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT8, 1).toString())
 
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 1).toString())
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 2).toString())
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 3).toString())
-                Log.e("aqui", characteristic.getFloatValue(FORMAT_FLOAT, 4).toString())
 
                 val format = when (flag and 0x01) {
                     0x01 -> {
@@ -326,37 +324,6 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                 Log.e("aqui", String.format("Received heart rate: %d", heartRate))
                 //intent.putExtra(EXTRA_DATA, (heartRate).toString())
             }
-            UUID.fromString("69d9fdd7-64fa-4987-aa3f-43b5f4cabcbf") -> {
-                val flag = characteristic.properties
-                val format = when (flag and 0x01) {
-                    0x01 -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT16
-                    }
-                    else -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT8
-                    }
-                }
-                val heartRate = characteristic.getIntValue(format, 1)
-                Log.e("aqui", characteristic.toString())
-                Log.e("aqui", String.format("Received heart rate: %d", heartRate))
-                //intent.putExtra(EXTRA_DATA, (heartRate).toString())
-            }
-            UUID.fromString("69d9fdd7-74fa-4987-a3f4-3b5f4cabcbf") -> {
-                val flag = characteristic.properties
-                val format = when (flag and 0x01) {
-                    0x01 -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT16
-                    }
-                    else -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT8
-                    }
-                }
-                val heartRate = characteristic.getIntValue(format, 1)
-                Log.e("aqui", characteristic.toString())
-                Log.e("aqui", String.format("Received heart rate: %d", heartRate))
-                //intent.putExtra(EXTRA_DATA, (heartRate).toString())
-            }
-
         }
         //sendBroadcast(intent)
     }
