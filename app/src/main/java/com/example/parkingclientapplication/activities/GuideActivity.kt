@@ -21,30 +21,53 @@ import kotlinx.android.synthetic.main.app_bar_guide.*
 import java.util.*
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.location.LocationManager
 import android.os.Build
 import android.os.Handler
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.ListView
+import android.widget.Toast
+import com.example.parkingclientapplication.model.ParkingLot
 import java.io.UnsupportedEncodingException
+import java.net.URLEncoder
 import java.nio.ByteBuffer
+import kotlin.collections.ArrayList
 
 
 class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnRequestPermissionsResultCallback{
 
+    private var paint: Paint? = null
+
     private val PERMISSION_REQUEST_COARSE_LOCATION = 1
-    private var beaconList: ArrayList<String>? = null
-    private var beaconListView: ListView? = null
-    private var adapter: ArrayAdapter<String>? = null
+    private val REQUEST_ENABLE_BT = 1
     private var handler: Handler? = null
     private var mLEScanner: BluetoothLeScanner? = null
     private var mGatt: BluetoothGatt? = null
+    private var initialLot: BluetoothGattCharacteristic? = null
+    private var finalLot: BluetoothGattCharacteristic? = null
+    private var direction: BluetoothGattCharacteristic? = null
+
+    private var parkingLot: ParkingLot? = null
+
+    private var devicesResult: ArrayList<ScanResult>? = null
+
+    private var closestDeviceName: String = ""
+
+    private var descriptorSelected = ""
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy(LazyThreadSafetyMode.NONE) {
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
     }
+
+    private lateinit var linesView: ImageView
 
     private val BluetoothAdapter.isDisabled: Boolean
         get() = !isEnabled
@@ -53,26 +76,30 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
         handler = Handler()
-        beaconList = ArrayList()
-        beaconListView = findViewById(R.id.listView)
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, beaconList)
-        beaconListView!!.adapter = adapter
-        bluetoothAdapter?.takeIf { it.isDisabled }?.apply {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBtIntent, 1)
-        }
+        linesView = findViewById(R.id.iv)
+        devicesResult = ArrayList()
+        parkingLot = savedInstanceState!!.getBundle("parkingLotSelected")!!.getParcelable("parkingLot")
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
         {
+
             // Android M Permission check 
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            {
+                {
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle("This app needs location access")
                 builder.setMessage("Please grant location access so this app can detect beacons.")
                 builder.setPositiveButton(android.R.string.ok, null)
                 builder.setOnDismissListener { requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), PERMISSION_REQUEST_COARSE_LOCATION) }
                 builder.show()
+            }else{
+
+                if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE))
+                {
+                    Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             }
         }
 
@@ -95,18 +122,15 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
 
     override fun onResume() {
         super.onResume()
-        if (bluetoothAdapter == null || !bluetoothAdapter!!.isEnabled)
+        if (bluetoothAdapter != null && !bluetoothAdapter!!.isEnabled)
         {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, 1)
         }
-        else
-        {
+
             mLEScanner = bluetoothAdapter!!.bluetoothLeScanner
             scanLeDevice(true)
-            //mLEScanner = bluetoothAdapter!!.bluetoothLeScanner
-            //scanLeDevice(true)
-        }
+
     }
     override fun onPause() {
         super.onPause()
@@ -123,6 +147,14 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         mGatt!!.close()
         mGatt = null
         super.onDestroy()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            finish()
+            return
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onBackPressed() {
@@ -163,10 +195,9 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             Log.i("callbackType", callbackType.toString())
             Log.i("result", result.toString())
-            val btDevice = result.device
-            if (btDevice.address == "B8:27:EB:D2:A6:DE"){
-                connectToDevice(btDevice)
-            }
+            devicesResult!!.add(result)
+
+
         }
 
         override fun onBatchScanResults(results: List<ScanResult>) {
@@ -185,6 +216,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         {
             handler!!.postDelayed({
                 mLEScanner!!.stopScan(mScanCallback)
+
+                selectDevice()
             }, SCAN_PERIOD)
             mLEScanner!!.startScan(mScanCallback)
         }
@@ -195,8 +228,25 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     }
 
 
+    private fun selectDevice(){
+        var highestRSSI = -100
+        for (result in devicesResult!!){
 
-    fun connectToDevice(device: BluetoothDevice) {
+          if(result.rssi >= highestRSSI && result.device.name != null){
+              highestRSSI = result.rssi
+              closestDeviceName = result.device.name
+          }
+        }
+        val btDevice = devicesResult!!.filter { it.device.address ==  "B8:27:EB:D2:A6:DE"}
+        Log.e("aqui", closestDeviceName)
+        Log.e("aqui", btDevice.toString())
+        connectToDevice(btDevice[0].device)
+    }
+
+
+
+
+    private fun connectToDevice(device: BluetoothDevice) {
         if (mGatt == null) {
             mGatt = device.connectGatt(this, false, gattCallback)
             scanLeDevice(false)// will stop after first device detection
@@ -215,7 +265,6 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.e("gattCallback", "STATE_DISCONNECTED")
-                    //broadcastUpdate(intentAction)
                 }
                 else -> Log.e("gattCallback", "STATE_OTHER")
 
@@ -227,15 +276,17 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             Log.i("onServicesDiscovered", services.toString())
 
             val characteristicList = services[2].characteristics
-            for (characteristic in characteristicList){
-                if(isCharacterisitcReadable(characteristic)){
-                    gatt.readCharacteristic(characteristic)
-                }else{
-                    val descriptor = characteristic.getDescriptor()
-                    gatt.writeDescriptor(descriptor)
-                }
-            }
+
+
+            initialLot = characteristicList[0]
+            finalLot = characteristicList[1]
+            direction = characteristicList[2]
+
+            operationCharacteristic(initialLot!!, gatt)
         }
+
+
+
         override fun onCharacteristicRead(gatt:BluetoothGatt,
                                           characteristic:BluetoothGattCharacteristic, status:Int) {
             Log.i("onCharacteristicRead", characteristic.toString())
@@ -248,108 +299,138 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             gatt.disconnect()
         }
 
-        override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
-            super.onDescriptorWrite(gatt, descriptor, status)
-            val characteristic = gatt!!.getService(HEART_RATE_SERVICE_UUID)
-                .getCharacteristic(HEART_RATE_CONTROL_POINT_CHAR_UUID)
-            characteristic.value = byteArrayOf(1, 1)
-            gatt.writeCharacteristic(characteristic)
-        }
+        override fun onCharacteristicWrite(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?,
+            status: Int
+        ) {
+            super.onCharacteristicWrite(gatt, characteristic, status)
+            when (status) {
+                BluetoothGatt.GATT_SUCCESS -> {
+                    if(characteristic!!.uuid == UUID.fromString("69d9fdd7-34fa-4987-aa3f-43b5f4cabcbf")){
+                        operationCharacteristic(finalLot!!, gatt!!)
+                    }else{
+                        operationCharacteristic(direction!!, gatt!!)
+                    }
 
-        override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
-            super.onCharacteristicChanged(gatt, characteristic)
-            processData(characteristic!!.value)
+                }
+            }
         }
     }
 
 
+    private fun operationCharacteristic(
+        characteristic: BluetoothGattCharacteristic,
+        gatt: BluetoothGatt
+    ) {
+        if (isCharacteristicReadable(characteristic)) {
+            gatt.readCharacteristic(characteristic)
 
-    private fun broadcastUpdate(action: String) {
-        val intent = Intent(action)
-        sendBroadcast(intent)
+        } else {
+
+            if (characteristic.uuid == UUID.fromString("69d9fdd7-34fa-4987-aa3f-43b5f4cabcbf")) {
+                descriptorSelected = "1"
+
+                val value = closestDeviceName.toByteArray()
+                characteristic.value = value
+                val statusResult = gatt.writeCharacteristic(characteristic)
+                Log.e("status1", statusResult.toString())
+            } else if (characteristic.uuid == UUID.fromString("69d9fdd7-44fa-4987-aa3f-43b5f4cabcbf")) {
+                descriptorSelected = "2"
+
+                //val value = parkingLot!!.position!!.toByteArray()
+                val value = "4-4".toByteArray()
+                characteristic.value = value
+                val statusResult = gatt.writeCharacteristic(characteristic)
+                Log.e("status2", statusResult.toString())
+            }
+        }
     }
-
 
     private fun broadcastUpdate(action: String, characteristic: BluetoothGattCharacteristic) {
-        //val intent = Intent(action)
 
-        // This is special handling for the Heart Rate Measurement profile. Data
-        // parsing is carried out as per profile specifications.
         when (characteristic.uuid) {
-            UUID.fromString("69d9fdd7-34fa-4987-aa3f-43b5f4cabcbf") -> {
-                val flag = characteristic.properties
-                Log.e("aqui", characteristic.getIntValue(FORMAT_SINT8, 1).toString())
-
-
-                val format = when (flag and 0x01) {
-                    0x01 -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT16
-                    }
-                    else -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT16
-                    }
-                }
-                val heartRate = characteristic.getIntValue(format, 1)
-                Log.e("aqui", characteristic.toString())
-                Log.e("aqui", String.format("Received heart rate: %d", heartRate))
-                //intent.putExtra(EXTRA_DATA, (heartRate).toString())
-            }
-            UUID.fromString("69d9fdd7-44fa-4987-aa3f-43b5f4cabcbf") -> {
-                val flag = characteristic.properties
-                val format = when (flag and 0x01) {
-                    0x01 -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT16
-                    }
-                    else -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT8
-                    }
-                }
-                val heartRate = characteristic.getIntValue(format, 1)
-                Log.e("aqui", characteristic.toString())
-                Log.e("aqui", String.format("Received heart rate: %d", heartRate))
-                //intent.putExtra(EXTRA_DATA, (heartRate).toString())
-            }
             UUID.fromString("69d9fdd7-54fa-4987-aa3f-43b5f4cabcbf") -> {
-                val flag = characteristic.properties
-                val format = when (flag and 0x01) {
-                    0x01 -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT16
-                    }
-                    else -> {
-                        BluetoothGattCharacteristic.FORMAT_UINT8
-                    }
-                }
-                val heartRate = characteristic.getIntValue(format, 1)
-                Log.e("aqui", characteristic.toString())
-                Log.e("aqui", String.format("Received heart rate: %d", heartRate))
-                //intent.putExtra(EXTRA_DATA, (heartRate).toString())
+                Log.e("aqui", String(characteristic.value))
+                val  bitmap = Bitmap.createBitmap(
+                        500, // Width
+                        300, // Height
+                        Bitmap.Config.ARGB_8888 // Config
+                )
+
+                // Initialize a new Canvas instance
+                val canvas = Canvas(bitmap)
+
+                // Draw a solid color on the canvas as background
+                canvas.drawColor(Color.LTGRAY)
+
+                // Initialize a new Paint instance to draw the line
+                val paint = Paint()
+                // Line color
+                paint.color = Color.RED
+                paint.style = Paint.Style.STROKE
+                // Line width in pixels
+                paint.strokeWidth = 8F
+                paint.isAntiAlias = true
+
+                // Set a pixels value to offset the line from canvas edge
+                val offset = 50F
+
+                /*
+                    public void drawLine (float startX, float startY, float stopX, float stopY, Paint paint)
+                        Draw a line segment with the specified start and stop x,y coordinates, using
+                        the specified paint.
+
+                        Note that since a line is always "framed", the Style is ignored in the paint.
+
+                        Degenerate lines (length is 0) will not be drawn.
+
+                    Parameters
+                        startX : The x-coordinate of the start point of the line
+                        startY : The y-coordinate of the start point of the line
+                        paint : The paint used to draw the line
+
+                */
+
+                // Draw a line on canvas at the center position
+                canvas.drawLine(
+                        offset, // startX
+                        canvas.height / 2F, // startY
+                        canvas.width - offset, // stopX
+                        canvas.height / 2F, // stopY
+                        paint // Paint
+                )
+
+                // Display the newly created bitmap on app interface
+                linesView.setImageBitmap(bitmap)
             }
         }
-        //sendBroadcast(intent)
     }
+
 
     /**
      * @return Returns <b>true</b> if property is writable
      */
     fun isCharacteristicWriteable(pChar:BluetoothGattCharacteristic):Boolean {
-        return (pChar.properties and(BluetoothGattCharacteristic.PROPERTY_WRITE or(BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) )) != 0
+        return (pChar.properties and(PROPERTY_WRITE or(PROPERTY_WRITE_NO_RESPONSE) )) != 0
     }
     /**
      * @return Returns <b>true</b> if property is Readable
      */
-    fun isCharacterisitcReadable(pChar:BluetoothGattCharacteristic):Boolean {
-        return ((pChar.properties and BluetoothGattCharacteristic.PROPERTY_READ) != 0)
+    private fun isCharacteristicReadable(pChar:BluetoothGattCharacteristic):Boolean {
+        return ((pChar.properties and PROPERTY_READ) != 0)
     }
     /**
      * @return Returns <b>true</b> if property is supports notification
      */
     fun isCharacterisiticNotifiable(pChar:BluetoothGattCharacteristic):Boolean {
-        return (pChar.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY) != 0
+        return (pChar.properties and PROPERTY_NOTIFY) != 0
     }
 
 
     companion object {
         private const val SCAN_PERIOD: Long = 10000
+
     }
 
 

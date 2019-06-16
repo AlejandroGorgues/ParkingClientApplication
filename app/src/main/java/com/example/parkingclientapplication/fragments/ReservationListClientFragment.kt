@@ -15,6 +15,7 @@ import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.ReservationListAdapter
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.model.Driver
+import com.example.parkingclientapplication.model.ParkingLot
 import com.example.parkingclientapplication.model.Reservation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -25,7 +26,7 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.net.MalformedURLException
 
-class ReservationListClientFragment() : Fragment() {
+class ReservationListClientFragment : Fragment() {
 
     private lateinit var reservAdapter: RecyclerView.Adapter<*>
     private lateinit var reservRecyclerView: RecyclerView
@@ -37,6 +38,7 @@ class ReservationListClientFragment() : Fragment() {
     private var reservationTable: MobileServiceTable<Reservation>? = null
     private var driverTable: MobileServiceTable<Driver>? = null
     private var reservations = ArrayList<Reservation>()
+
 
     private lateinit var driver: Driver
     private lateinit var auth: FirebaseAuth
@@ -66,6 +68,7 @@ class ReservationListClientFragment() : Fragment() {
             }
 
             reservationTable = mClient!!.getTable(Reservation::class.java)
+
             driverTable = mClient!!.getTable(Driver::class.java)
             doAsync {
 

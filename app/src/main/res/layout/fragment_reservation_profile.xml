@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:gravity="center"
-             tools:context=".fragments.ReservationProfileFragment">
+              tools:context=".fragments.ReservationProfileFragment">
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -105,4 +105,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
     </android.support.design.widget.TextInputLayout>
+
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/guideAccess"
+            android:text="Acceder al guiado"
+            android:textColor="@color/whiteText"
+            android:layout_gravity="center"
+            app:backgroundTint="@color/blueButton"/>
 </LinearLayout>

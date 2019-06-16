@@ -10,11 +10,10 @@
         android:id="@+id/content_guide"
         tools:context=".activities.GuideActivity">
 
-    <ListView
+    <ImageView
+            android:id="@+id/iv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/listView"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
+    />
 
 </android.support.constraint.ConstraintLayout>

@@ -37,7 +37,6 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
             }else{
                 supportFragmentManager.popBackStack()
             }
-            //Toast.makeText(this, supportFragmentManager.backStackEntryCount.toString(), Toast.LENGTH_SHORT).show()
 
         }
 
@@ -54,6 +53,11 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
             }
             2 -> {
                 val intent = Intent(this, ClientMapActivity::class.java)
+                startActivity(intent)}
+
+            3 -> {
+                val intent = Intent(this, GuideActivity::class.java)
+                intent.putExtra("parkingLotSelected", bundle)
                 startActivity(intent)}
             }
         }

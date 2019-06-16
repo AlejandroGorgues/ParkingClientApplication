@@ -132,7 +132,7 @@ class ConfirmSelectionFragment : Fragment() {
                     reservation.idParkingLot = parkingLot.id
                     reservationTable!!.insert(reservation)
                     runOnUiThread {
-                        alert("Su número de plaza asociado es "+parkingLot.id+"\n Para obtener todos los datos de la reserva, puede acceder a Mis Reservas para ver todas") {
+                        alert("Su número de plaza asociado es "+parkingLot.position+"\n Para obtener todos los datos de la reserva, puede acceder a Mis Reservas para ver todas") {
                             title = "Información"
                             yesButton { loadFragment.loadFragment(2, bundle) }
                         }.show()
