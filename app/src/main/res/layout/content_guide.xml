@@ -10,10 +10,13 @@
         android:id="@+id/content_guide"
         tools:context=".activities.GuideActivity">
 
-    <ImageView
+    <!--<ImageView
             android:id="@+id/iv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-    />
+    />-->
+    <TextView android:layout_width="match_parent"
+              android:layout_height="match_parent"
+                android:id="@+id/routeTxt"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -30,10 +30,7 @@ import android.os.Build
 import android.os.Handler
 import android.support.v7.app.AlertDialog
 import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.Toast
+import android.widget.*
 import com.example.parkingclientapplication.model.ParkingLot
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
@@ -68,6 +65,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     }
 
     private lateinit var linesView: ImageView
+    private lateinit var routeTxt: TextView
 
     private val BluetoothAdapter.isDisabled: Boolean
         get() = !isEnabled
@@ -76,9 +74,10 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
         handler = Handler()
-        linesView = findViewById(R.id.iv)
+        //linesView = findViewById(R.id.iv)
+        routeTxt = findViewById(R.id.routeTxt)
         devicesResult = ArrayList()
-        parkingLot = savedInstanceState!!.getBundle("parkingLotSelected")!!.getParcelable("parkingLot")
+        //parkingLot = intent.getBundleExtra("parkingLotSelected")!!.getParcelable("parkingLot")
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -352,7 +351,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         when (characteristic.uuid) {
             UUID.fromString("69d9fdd7-54fa-4987-aa3f-43b5f4cabcbf") -> {
                 Log.e("aqui", String(characteristic.value))
-                val  bitmap = Bitmap.createBitmap(
+                routeTxt.text = String(characteristic.value)
+                /*val  bitmap = Bitmap.createBitmap(
                         500, // Width
                         300, // Height
                         Bitmap.Config.ARGB_8888 // Config
@@ -402,7 +402,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                 )
 
                 // Display the newly created bitmap on app interface
-                linesView.setImageBitmap(bitmap)
+                linesView.setImageBitmap(bitmap)*/
             }
         }
     }

@@ -21,13 +21,8 @@ import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.runOnUiThread
-import org.jetbrains.anko.support.v4.toast
 import org.jetbrains.anko.yesButton
 import java.net.MalformedURLException
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.collections.ArrayList
 
 class ConfirmSelectionFragment : Fragment() {
@@ -99,6 +94,7 @@ class ConfirmSelectionFragment : Fragment() {
                     client
                 }
 
+                //Set a reservation profile to be uploaded to the database
                 reservation.id = ""
                 reservation.licensePlate = vehicle.licensePlate
                 reservation.model = vehicle.model
@@ -115,20 +111,24 @@ class ConfirmSelectionFragment : Fragment() {
 
                 doAsync {
 
+                    //Obtain all parking lots related to the parking selected
                     val resultParkingLotQuery = parkingLotTable!!.where().field("idParking").eq(parking.id).execute().get()
                     for (parkingLot in resultParkingLotQuery){
                         parkingLots.add(parkingLot)
                     }
 
+                    //Obtain a random parking lot that it's currently free
                     do {
                         parkingLot = parkingLots[(0 until parkingLots.size).random()]
                     }while (parkingLot.stateLot != "free")
 
+                    //Obtain the driver profile
                     val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
                     for (driver in resultDriverQuery){
                         reservation.idDriver = driver.id
                     }
 
+                    //Insert the reservation to the database
                     reservation.idParkingLot = parkingLot.id
                     reservationTable!!.insert(reservation)
                     runOnUiThread {
