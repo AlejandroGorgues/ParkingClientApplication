@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:showIn="@layout/app_bar_guide_map"
+        android:id="@+id/content_guide_map"
+        tools:context=".activities.GuideMapActivity">
+
+    <com.google.android.gms.maps.MapView
+            android:id="@+id/mapGuideView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:id="@+id/routeTxt"/>
+
+</android.support.constraint.ConstraintLayout>

@@ -35,8 +35,8 @@ class ConfirmSelectionFragment : Fragment() {
     private var mClient: MobileServiceClient? = null
 
     private var reservationTable: MobileServiceTable<Reservation>? = null
-    private var parkingLotTable: MobileServiceTable<ParkingLot>? = null
     private var driverTable: MobileServiceTable<Driver>? = null
+    private var bankProfileTable: MobileServiceTable<BankProfile>? = null
 
 
     private lateinit var driver: Driver
@@ -45,9 +45,6 @@ class ConfirmSelectionFragment : Fragment() {
     private lateinit var parking: Parking
     private lateinit var vehicle: Vehicle
     private lateinit var reservation: Reservation
-    private lateinit var parkingLot: ParkingLot
-
-    private lateinit var parkingLots: ArrayList<ParkingLot>
 
     private lateinit var loadFragment: LoadFragments
 
@@ -67,82 +64,87 @@ class ConfirmSelectionFragment : Fragment() {
         parking = arguments!!.getParcelable("parkingSelected")!!
         vehicle = arguments!!.getParcelable("vehicleSelected")!!
 
-        edUsernameConfirm.setText("Username")
-        edNumberCardConfirm.setText("1234-5678-9012-3456")
-        edVehicleConfirm.setText(vehicle.licensePlate)
-        edParkingConfirm.setText(parking.nameParking)
-
         auth = FirebaseAuth.getInstance()
 
         driver = Driver()
         reservation = Reservation()
-        parkingLot = ParkingLot()
-        parkingLots = ArrayList()
 
-        buttonConfirm.setOnClickListener {
-            try {
+        try {
 
-                // Create the client instance, using the provided mobile app URL.
-                mClient = AzureClient.getInstance(context!!).getClient()
+            // Create the client instance, using the provided mobile app URL.
+            mClient = AzureClient.getInstance(context!!).getClient()
 
 
 
-                mClient!!.setAndroidHttpClientFactory {
-                    val client = OkHttpClient()
-                    client.readTimeoutMillis()
-                    client.writeTimeoutMillis()
-                    client
-                }
+            mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }
 
-                //Set a reservation profile to be uploaded to the database
-                reservation.id = ""
-                reservation.licensePlate = vehicle.licensePlate
-                reservation.model = vehicle.model
-                reservation.brand = vehicle.brand
-                reservation.expensesActive = parking.price
-                reservation.dateReservation = ""
-                reservation.timeActive = 0
-                reservation.state = "open"
 
-                reservationTable = mClient!!.getTable(Reservation::class.java)
-                parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
-                driverTable = mClient!!.getTable(Driver::class.java)
-                mClient!!.
+
+            reservationTable = mClient!!.getTable(Reservation::class.java)
+            driverTable = mClient!!.getTable(Driver::class.java)
+            bankProfileTable = mClient!!.getTable(BankProfile::class.java)
 
                 doAsync {
 
-                    //Obtain all parking lots related to the parking selected
-                    val resultParkingLotQuery = parkingLotTable!!.where().field("idParking").eq(parking.id).execute().get()
-                    for (parkingLot in resultParkingLotQuery){
-                        parkingLots.add(parkingLot)
-                    }
-
-                    //Obtain a random parking lot that it's currently free
-                    do {
-                        parkingLot = parkingLots[(0 until parkingLots.size).random()]
-                    }while (parkingLot.stateLot != "free")
 
                     //Obtain the driver profile
                     val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
-                    for (driver in resultDriverQuery){
-                        reservation.idDriver = driver.id
-                    }
+                    for (driverAux in resultDriverQuery){
+                        val resultBankProfileQuery = bankProfileTable!!.where().field("idDriver").eq(driverAux.id).execute().get()
+                        for (bankProfileAux in resultBankProfileQuery){
+                            runOnUiThread {
+                                edUsernameConfirm.setText(driverAux.username)
+                                edNumberCardConfirm.setText(bankProfileAux.numberCard)
+                                edVehicleConfirm.setText(vehicle.licensePlate)
+                                edParkingConfirm.setText(parking.nameParking)
+                            }
+                        }
 
-                    //Insert the reservation to the database
-                    reservation.idParkingLot = parkingLot.id
-                    reservationTable!!.insert(reservation)
-                    runOnUiThread {
-                        alert("Su número de plaza asociado es "+parkingLot.position+"\n Para obtener todos los datos de la reserva, puede acceder a Mis Reservas para ver todas") {
-                            title = "Información"
-                            yesButton { loadFragment.loadFragment(2, bundle) }
-                        }.show()
                     }
                 }
 
-            } catch (e: MalformedURLException) {
-                AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
-            } catch (e: java.lang.Exception){
-                AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
+        } catch (e: MalformedURLException) {
+            AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
+        } catch (e: java.lang.Exception){
+            AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
+        }
+
+        buttonConfirm.setOnClickListener {
+            //Set a reservation profile to be uploaded to the database
+            reservation.id = ""
+            reservation.licensePlate = vehicle.licensePlate
+            reservation.model = vehicle.model
+            reservation.brand = vehicle.brand
+            reservation.expensesActive = parking.price
+            reservation.dateReservation = ""
+            reservation.nameParking = parking.nameParking
+            reservation.state = "open"
+
+            doAsync {
+
+
+                //Obtain the driver profile
+                val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+                for (driver in resultDriverQuery){
+                    reservation.idDriver = driver.id
+                }
+
+                //Insert the reservation to the database
+                reservation.idParkingLot = ""
+                reservationTable!!.insert(reservation)
+                runOnUiThread {
+                    alert("El aparcamiento de la reserva es "+parking.nameParking+"\n " +
+                            "Para obtener todos los datos de la reserva así como al guiado, puede acceder a Mis Reservas para ver todas\n" +
+                            "Se informará de la plaza en la entrada del aparcamiento") {
+                        title = "Información"
+                        yesButton { loadFragment.loadFragment(2, bundle) }
+                    }.show()
+                }
             }
 
         }

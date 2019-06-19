@@ -31,6 +31,7 @@ import android.os.Handler
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.widget.*
+import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.ParkingLot
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
@@ -51,7 +52,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     private var finalLot: BluetoothGattCharacteristic? = null
     private var direction: BluetoothGattCharacteristic? = null
 
-    private var parkingLot: ParkingLot? = null
+    private var parking: String? = null
 
     private var devicesResult: ArrayList<ScanResult>? = null
 
@@ -77,7 +78,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         //linesView = findViewById(R.id.iv)
         routeTxt = findViewById(R.id.routeTxt)
         devicesResult = ArrayList()
-        //parkingLot = intent.getBundleExtra("parkingLotSelected")!!.getParcelable("parkingLot")
+        parking = intent.getBundleExtra("parkingSelected")!!.getString("idParking")
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)

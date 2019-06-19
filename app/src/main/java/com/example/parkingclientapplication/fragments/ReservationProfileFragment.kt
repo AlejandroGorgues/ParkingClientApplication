@@ -12,28 +12,39 @@ import com.example.parkingclientapplication.AzureClient
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.interfaces.LoadFragments
-import com.example.parkingclientapplication.model.ParkingLot
-import com.example.parkingclientapplication.model.Reservation
+import com.example.parkingclientapplication.model.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.support.v4.runOnUiThread
 import java.net.MalformedURLException
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class ReservationProfileFragment : Fragment() {
     private lateinit var edUserReserv: EditText
     private lateinit var edParkingReserv: EditText
     private lateinit var edTarjetaReserv: EditText
     private lateinit var edMatriculaReserv: EditText
-    private lateinit var edTiempoReserv: EditText
     private lateinit var edFechaReserv: EditText
     private lateinit var edEstadoReserv: EditText
     private lateinit var edPrecioReserv: EditText
+
     private var parkingLotTable: MobileServiceTable<ParkingLot>? = null
+    private var driverTable: MobileServiceTable<Driver>? = null
+    private var bankProfileTable: MobileServiceTable<BankProfile>? = null
+    private var parkingTable: MobileServiceTable<Parking>? = null
+
+    private var parkingLots: ArrayList<ParkingLot>? = null
+
+    private lateinit var auth: FirebaseAuth
+
     private var mClient: MobileServiceClient? = null
 
     private lateinit var bGuide: Button
@@ -41,6 +52,7 @@ class ReservationProfileFragment : Fragment() {
     private lateinit var loadFragments: LoadFragments
 
     private lateinit var reservation: Reservation
+    private lateinit var parkingLot: ParkingLot
 
 
     override fun onCreateView(
@@ -54,21 +66,21 @@ class ReservationProfileFragment : Fragment() {
         edParkingReserv = view.findViewById(R.id.edParkingReserv)
         edTarjetaReserv = view.findViewById(R.id.edTarjetaReserv)
         edMatriculaReserv = view.findViewById(R.id.edMatriculaReserv)
-        edTiempoReserv = view.findViewById(R.id.edTiempoReserv)
         edFechaReserv = view.findViewById(R.id.edFechaReserv)
         edEstadoReserv = view.findViewById(R.id.edEstadoReserv)
         edPrecioReserv = view.findViewById(R.id.edPrecioReserv)
 
         reservation = arguments!!.getParcelable("reservation")!!
 
-        edUserReserv.setText("Usuario")
-        edParkingReserv.setText("Parking reserva")
-        edTarjetaReserv.setText("Tarjeta usuario")
+        edUserReserv.setText("")
+        edParkingReserv.setText(reservation.nameParking)
+        edTarjetaReserv.setText("")
         edMatriculaReserv.setText(reservation.licensePlate)
-        edTiempoReserv.setText(reservation.timeActive.toString())
         edFechaReserv.setText(trimDate(reservation.dateReservation.toString()))
         edEstadoReserv.setText(reservation.state)
         edPrecioReserv.setText(reservation.expensesActive.toString())
+
+        parkingLots = ArrayList()
 
         bGuide = view.findViewById(R.id.guideAccess)
         val bundle = Bundle()
@@ -85,14 +97,22 @@ class ReservationProfileFragment : Fragment() {
                 client
             }
 
-            parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
+
+            driverTable = mClient!!.getTable(Driver::class.java)
+            bankProfileTable = mClient!!.getTable(BankProfile::class.java)
             doAsync {
 
-                val resultParkingLotQuery = parkingLotTable!!.where().field("id").eq(reservation.idParkingLot).execute().get()
-                for (parkingLot in resultParkingLotQuery) {
-                    bundle.putParcelable("parkingLot", parkingLot)
-                }
+                val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
+                for (driverAux in resultDriverQuery){
+                    val resultBankProfileQuery = bankProfileTable!!.where().field("idDriver").eq(driverAux.id).execute().get()
+                    for (bankProfileAux in resultBankProfileQuery){
+                        runOnUiThread {
+                            edUserReserv.setText(driverAux.username)
+                            edTarjetaReserv.setText(bankProfileAux.numberCard)
+                        }
+                    }
 
+                }
             }
 
         } catch (e: MalformedURLException) {
@@ -104,7 +124,22 @@ class ReservationProfileFragment : Fragment() {
 
 
         bGuide.setOnClickListener {
-            loadFragments.loadFragment(3, bundle)
+            parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
+            parkingTable = mClient!!.getTable(Parking::class.java)
+
+            doAsync {
+
+                val resultParkingQuery = parkingTable!!.where().field("nameParking").eq(reservation.nameParking).execute().get()
+                for (parkingAux in resultParkingQuery){
+                    bundle.putParcelable("parking", parkingAux)
+                    runOnUiThread {
+                        loadFragments.loadFragment(3, bundle)
+                    }
+                }
+
+
+            }
+
         }
 
         return view
@@ -119,6 +154,15 @@ class ReservationProfileFragment : Fragment() {
             e.printStackTrace()
         }
         return DateFormat.getInstance().format(dateReservation)
+    }
+
+
+    private fun getEmail(user: FirebaseUser):String{
+        user.let {
+            // Name, email address, and profile photo Url
+            return user.email!!
+        }
+
     }
 
 

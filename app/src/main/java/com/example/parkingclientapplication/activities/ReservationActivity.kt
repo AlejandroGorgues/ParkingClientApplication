@@ -56,8 +56,8 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
                 startActivity(intent)}
 
             3 -> {
-                val intent = Intent(this, GuideActivity::class.java)
-                intent.putExtra("parkingLotSelected", bundle)
+                val intent = Intent(this, GuideMapActivity::class.java)
+                intent.putExtra("parkingSelected", bundle)
                 startActivity(intent)}
             }
         }

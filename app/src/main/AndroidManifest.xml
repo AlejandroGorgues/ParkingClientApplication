@@ -26,6 +26,9 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
+        <service android:name=".GeofenceTransitionIntentService"/>
+        <activity android:name=".activities.GuideMapActivity">
+        </activity>
         <activity
                 android:name=".activities.GuideActivity"
                 android:label="@string/title_activity_guide"

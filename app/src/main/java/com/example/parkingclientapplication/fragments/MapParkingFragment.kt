@@ -55,9 +55,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
     lateinit var mapView: MapView
 
-    //private lateinit var txtUsername: TextView
-    //private lateinit var txtEmail: TextView
-    var mapFragment: GoogleMap? = null
+    private var mapFragment: GoogleMap? = null
 
     private var permissions: ArrayList<String> = ArrayList()
     private var markerList: ArrayList<Marker> = ArrayList()
@@ -78,11 +76,8 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     private var mClient: MobileServiceClient? = null
 
     private var parkingTable: MobileServiceTable<Parking>? = null
-    private var parkingLotTable: MobileServiceTable<ParkingLot>? = null
 
     private var parkings = ArrayList<Parking>()
-
-    private lateinit var viewAux: View
 
 
     override fun onCreateView(
@@ -91,7 +86,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
     ): View? {
 
         val view = inflater.inflate(R.layout.fragment_map_parking, container, false)
-        viewAux = view
         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -209,9 +203,6 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         } catch (e: java.lang.Exception){
             AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
-
-
-        //mNEARCurrentLocation1!!.tag = 0
 
         uiSettings = mapFragment!!.uiSettings
 
@@ -352,30 +343,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
         }
     }
 
-    private fun getDirection(marker: LatLng){
-        GoogleDirection.withServerKey("AIzaSyBn0JtWo8gDx4MIUwBdGISs7_YimRHqy7A")
-            .from(LatLng(locationLatLng!!.latitude, locationLatLng!!.longitude))
-            .to(LatLng(marker.latitude, marker.longitude))
-            .execute(object: DirectionCallback {
-                override fun onDirectionSuccess(direction: Direction, rawBody:String) {
-                    if (direction.isOK)
-                    {
-                        val route = direction.routeList[0]
-                        val leg = route.legList[0]
-                        val directionPositionList = leg.directionPoint
-                        val polylineOptions = DirectionConverter.createPolyline(context, directionPositionList, 5, Color.RED)
-                        mapFragment!!.addPolyline(polylineOptions)
-                    }
-                    else
-                    {
-                        // Do something
-                    }
-                }
-                override fun onDirectionFailure(t:Throwable) {
-                    // Do something
-                }
-            })
-    }
+
 
     //Obtiene la localización actual del dispositivo y lo asocia a un marcador
     private fun getCurrentLocation() {

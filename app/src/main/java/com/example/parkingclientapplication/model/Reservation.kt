@@ -19,7 +19,7 @@ class Reservation() : Parcelable {
     var brand: String? = null
     var expensesActive: Float? = null
     var dateReservation: String? = null
-    var timeActive: Int? = null
+    var nameParking: String? = null
     var state: String? = null
     var idDriver: String? = null
     var idParkingLot: String? = null
@@ -31,7 +31,7 @@ class Reservation() : Parcelable {
         brand = parcel.readString()
         expensesActive = parcel.readValue(Float::class.java.classLoader) as? Float
         dateReservation = parcel.readString()
-        timeActive = parcel.readInt()
+        nameParking = parcel.readString()
         state = parcel.readString()
         idDriver = parcel.readString()
         idParkingLot = parcel.readString()
@@ -44,7 +44,7 @@ class Reservation() : Parcelable {
         parcel.writeString(brand)
         parcel.writeValue(expensesActive)
         parcel.writeString(dateReservation)
-        parcel.writeValue(timeActive)
+        parcel.writeValue(nameParking)
         parcel.writeString(state)
         parcel.writeString(idDriver)
         parcel.writeString(idParkingLot)

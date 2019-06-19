@@ -7,7 +7,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import com.example.parkingclientapplication.R
@@ -16,12 +15,11 @@ import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import kotlinx.android.synthetic.main.activity_client_map.*
 import kotlinx.android.synthetic.main.app_bar_client_map.*
-import com.example.parkingclientapplication.interfaces.GetCurrentActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.integration.android.IntentIntegrator
 
 
-class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments,GetCurrentActivity, ActivityCompat.OnRequestPermissionsResultCallback  {
+class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments, ActivityCompat.OnRequestPermissionsResultCallback  {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,10 +140,6 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 }
             }
         }
-    }
-
-    override fun getCurrentActivity(): AppCompatActivity {
-        return this
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
