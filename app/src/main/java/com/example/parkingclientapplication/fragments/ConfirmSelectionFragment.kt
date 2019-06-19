@@ -3,6 +3,7 @@ package com.example.parkingclientapplication.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -85,7 +86,7 @@ class ConfirmSelectionFragment : Fragment() {
 
 
 
-            reservationTable = mClient!!.getTable(Reservation::class.java)
+
             driverTable = mClient!!.getTable(Driver::class.java)
             bankProfileTable = mClient!!.getTable(BankProfile::class.java)
 
@@ -95,6 +96,7 @@ class ConfirmSelectionFragment : Fragment() {
                     //Obtain the driver profile
                     val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
                     for (driverAux in resultDriverQuery){
+                        driver = driverAux
                         val resultBankProfileQuery = bankProfileTable!!.where().field("idDriver").eq(driverAux.id).execute().get()
                         for (bankProfileAux in resultBankProfileQuery){
                             runOnUiThread {
@@ -115,37 +117,56 @@ class ConfirmSelectionFragment : Fragment() {
         }
 
         buttonConfirm.setOnClickListener {
-            //Set a reservation profile to be uploaded to the database
-            reservation.id = ""
-            reservation.licensePlate = vehicle.licensePlate
-            reservation.model = vehicle.model
-            reservation.brand = vehicle.brand
-            reservation.expensesActive = parking.price
-            reservation.dateReservation = ""
-            reservation.nameParking = parking.nameParking
-            reservation.state = "open"
+            try {
 
-            doAsync {
+                // Create the client instance, using the provided mobile app URL.
+                mClient = AzureClient.getInstance(context!!).getClient()
 
 
-                //Obtain the driver profile
-                val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
-                for (driver in resultDriverQuery){
-                    reservation.idDriver = driver.id
+
+                mClient!!.setAndroidHttpClientFactory {
+                    val client = OkHttpClient()
+                    client.readTimeoutMillis()
+                    client.writeTimeoutMillis()
+                    client
                 }
 
-                //Insert the reservation to the database
+                //Set a reservation profile to be uploaded to the database
+                reservation.id = ""
+                reservation.licensePlate = vehicle.licensePlate
+                reservation.model = vehicle.model
+                reservation.brand = vehicle.brand
+                reservation.expensesActive = parking.price
+                reservation.dateReservation = ""
+                reservation.nameParking = parking.nameParking
+                reservation.state = "open"
+                reservation.idDriver = driver.id
                 reservation.idParkingLot = ""
-                reservationTable!!.insert(reservation)
-                runOnUiThread {
-                    alert("El aparcamiento de la reserva es "+parking.nameParking+"\n " +
-                            "Para obtener todos los datos de la reserva así como al guiado, puede acceder a Mis Reservas para ver todas\n" +
-                            "Se informará de la plaza en la entrada del aparcamiento") {
-                        title = "Información"
-                        yesButton { loadFragment.loadFragment(2, bundle) }
-                    }.show()
+                reservationTable = mClient!!.getTable(Reservation::class.java)
+                doAsync {
+
+                    //Insert the reservation to the database
+                    reservationTable!!.insert(reservation)
+
+
+                    runOnUiThread {
+                        alert("El aparcamiento de la reserva es "+parking.nameParking+"\n " +
+                                "Para obtener todos los datos de la reserva así como al guiado, puede acceder a Mis Reservas para ver todas\n" +
+                                "Se informará de la plaza en la entrada del aparcamiento") {
+                            title = "Información"
+                            yesButton { loadFragment.loadFragment(2, bundle) }
+                        }.show()
+                    }
                 }
+
+
+
+            } catch (e: MalformedURLException) {
+                AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
+            } catch (e: java.lang.Exception){
+                AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
             }
+
 
         }
         // Inflate the layout for this fragment

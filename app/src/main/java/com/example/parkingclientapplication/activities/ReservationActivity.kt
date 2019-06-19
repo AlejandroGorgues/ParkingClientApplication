@@ -49,16 +49,13 @@ class ReservationActivity : AppCompatActivity(), LoadFragments {
                 val confirmSelectionFragment = ConfirmSelectionFragment()
                 confirmSelectionFragment.arguments = bundle
                 supportFragmentManager.inTransSelection {
-                replace(R.id.content_client_reservation, confirmSelectionFragment)}
+                    replace(R.id.content_client_reservation, confirmSelectionFragment)
+                }
             }
             2 -> {
                 val intent = Intent(this, ClientMapActivity::class.java)
-                startActivity(intent)}
-
-            3 -> {
-                val intent = Intent(this, GuideMapActivity::class.java)
-                intent.putExtra("parkingSelected", bundle)
-                startActivity(intent)}
+                startActivity(intent)
             }
         }
     }
+}

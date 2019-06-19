@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.example.parkingclientapplication.activities.GuideActivity
+import com.example.parkingclientapplication.model.Reservation
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 
@@ -13,6 +14,7 @@ class GeofenceTransitionIntentService : IntentService("intentS") {
     private val TAG = "GeofenceTransitionsIS"
 
     private val CHANNEL_ID = "channel_01"
+    private lateinit var reservation: Reservation
 
     override fun onHandleIntent(intent: Intent?) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
@@ -29,7 +31,7 @@ class GeofenceTransitionIntentService : IntentService("intentS") {
 
 
             // Send notification and log the transition details.
-            loadGuideActivity(triggeringGeofences[0].requestId)
+            loadGuideActivity(intent!!.getBundleExtra("reservationSelected")!!.getParcelable("reservation")!!)
 
         } else {
             // Log the error.
@@ -40,11 +42,11 @@ class GeofenceTransitionIntentService : IntentService("intentS") {
     /**
      * Load the guide activity.
      */
-    private fun loadGuideActivity(requestId: String) {
+    private fun loadGuideActivity(reservation: Reservation) {
         val bundle = Bundle()
         val intent = Intent(this, GuideActivity::class.java)
-        bundle.putString("idParking", requestId)
-        intent.putExtra("parkingSelected", bundle)
+        bundle.putParcelable("reservation", reservation)
+        intent.putExtra("reservationSelected", bundle)
         startActivity(intent)
     }
 

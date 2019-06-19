@@ -139,6 +139,12 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 replace(R.id.content_data_client, reservationProfileFragment)
                 }
             }
+
+            7 -> {
+                val intent = Intent(this, GuideMapActivity::class.java)
+                intent.putExtra("parkingSelected", bundle)
+                startActivity(intent)
+            }
         }
     }
 

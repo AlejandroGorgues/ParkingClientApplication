@@ -44,7 +44,7 @@ class Reservation() : Parcelable {
         parcel.writeString(brand)
         parcel.writeValue(expensesActive)
         parcel.writeString(dateReservation)
-        parcel.writeValue(nameParking)
+        parcel.writeString(nameParking)
         parcel.writeString(state)
         parcel.writeString(idDriver)
         parcel.writeString(idParkingLot)

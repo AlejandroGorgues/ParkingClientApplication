@@ -132,8 +132,9 @@ class ReservationProfileFragment : Fragment() {
                 val resultParkingQuery = parkingTable!!.where().field("nameParking").eq(reservation.nameParking).execute().get()
                 for (parkingAux in resultParkingQuery){
                     bundle.putParcelable("parking", parkingAux)
+                    bundle.putParcelable("reservation", reservation)
                     runOnUiThread {
-                        loadFragments.loadFragment(3, bundle)
+                        loadFragments.loadFragment(7, bundle)
                     }
                 }
 

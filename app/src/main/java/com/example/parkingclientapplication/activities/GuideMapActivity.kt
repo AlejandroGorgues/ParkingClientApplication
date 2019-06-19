@@ -21,6 +21,7 @@ import com.akexorcist.googledirection.util.DirectionConverter
 import com.example.parkingclientapplication.GeofenceTransitionIntentService
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.model.Parking
+import com.example.parkingclientapplication.model.Reservation
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -55,6 +56,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
     private var geofenceList = ArrayList<Geofence>()
 
     private lateinit var parking: Parking
+    private lateinit var reservation: Reservation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +83,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
         }
 
         parking = intent.getBundleExtra("parkingSelected").getParcelable("parking")!!
+        reservation = intent.getBundleExtra("parkingSelected").getParcelable("reservation")!!
 
         mapView = findViewById(R.id.mapGuideView)
         mapView.onCreate(savedInstanceState)
@@ -185,7 +188,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
     private fun startGuiding(){
         getCurrentLocation()
         createParkingGeofence(parking.latitude!!, parking.longitude!!)
-        getDirection(LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble()))
+        //getDirection(LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble()))
     }
 
     private fun getDirection(marker: LatLng){
@@ -345,7 +348,10 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
     }
 
     private val geofencePendingIntent: PendingIntent by lazy {
+        val bundle = Bundle()
         val intent = Intent(this, GeofenceTransitionIntentService::class.java)
+        bundle.putParcelable("reservation", reservation)
+        intent.putExtra("reservationSelected", bundle)
         PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 

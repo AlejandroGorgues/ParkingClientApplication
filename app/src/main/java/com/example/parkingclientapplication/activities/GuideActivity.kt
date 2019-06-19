@@ -21,19 +21,28 @@ import kotlinx.android.synthetic.main.app_bar_guide.*
 import java.util.*
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.location.LocationManager
 import android.os.Build
 import android.os.Handler
 import android.support.v7.app.AlertDialog
+import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.*
+import androidx.annotation.RequiresApi
+import com.example.parkingclientapplication.AzureClient
+import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.ParkingLot
+import com.example.parkingclientapplication.model.Reservation
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
+import kotlinx.android.synthetic.main.content_client_guide.*
+import okhttp3.OkHttpClient
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.io.UnsupportedEncodingException
+import java.net.MalformedURLException
 import java.net.URLEncoder
 import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
@@ -41,7 +50,10 @@ import kotlin.collections.ArrayList
 
 class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnRequestPermissionsResultCallback{
 
-    private var paint: Paint? = null
+    private var mClient: MobileServiceClient? = null
+
+    private var reservationTable: MobileServiceTable<Reservation>? = null
+    private var parkingLotTable: MobileServiceTable<ParkingLot>? = null
 
     private val PERMISSION_REQUEST_COARSE_LOCATION = 1
     private val REQUEST_ENABLE_BT = 1
@@ -52,9 +64,13 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     private var finalLot: BluetoothGattCharacteristic? = null
     private var direction: BluetoothGattCharacteristic? = null
 
-    private var parking: String? = null
+    private var parkingLotId: String? = ""
+    private lateinit var reservation: Reservation
+    private lateinit var reservationCheck: Reservation
+    private lateinit var parkingLot: ParkingLot
 
     private var devicesResult: ArrayList<ScanResult>? = null
+    private var parkingLots: ArrayList<ParkingLot>? = null
 
     private var closestDeviceName: String = ""
 
@@ -65,12 +81,26 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         bluetoothManager.adapter
     }
 
-    private lateinit var linesView: ImageView
+
     private lateinit var routeTxt: TextView
+
+    private lateinit var paintLotsNS: Paint
+    private lateinit var paintLotsS: Paint
+    private lateinit var paintPath: Paint
+    private lateinit var paintArrow: Paint
+    private lateinit var paintText: Paint
+    private lateinit var canvas: Canvas
+    private lateinit var initialLotS: String
+    private lateinit var finalLotS: String
+    private var finalRectangle = ""
+    private val parkingRectangles:HashMap<String, RectF> = HashMap()
+    private var cornersRadius = 0
+
 
     private val BluetoothAdapter.isDisabled: Boolean
         get() = !isEnabled
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
@@ -78,7 +108,19 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         //linesView = findViewById(R.id.iv)
         routeTxt = findViewById(R.id.routeTxt)
         devicesResult = ArrayList()
-        parking = intent.getBundleExtra("parkingSelected")!!.getString("idParking")
+        parkingLots = ArrayList()
+
+        reservation = intent!!.getBundleExtra("reservationSelected")!!.getParcelable("reservation")!!
+
+        paintLotsNS = Paint()
+        paintLotsS = Paint()
+        paintPath = Paint()
+        paintArrow = Paint()
+        paintText = Paint()
+        initialLotS = "1-2"
+        finalLotS = "4-1"
+        cornersRadius = 25
+
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -103,9 +145,75 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             }
         }
 
-        /*supportFragmentManager.inTransaction {
-            replace(R.id.content_client_reservation, GuidingFragment())
-        }*/
+        loadParking()
+        try {
+            // Create the client instance, using the provided mobile app URL.
+            mClient = AzureClient.getInstance(this).getClient()
+
+
+
+            mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }
+
+            reservationTable = mClient!!.getTable(Reservation::class.java)
+            parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
+            doAsync {
+                while (parkingLot.id == ""){
+                    val resultQuery = reservationTable!!.where().field("id").eq(reservation.id).execute().get()
+                    for (reservationAux in resultQuery) {
+                        reservationCheck = reservationAux
+                        if(reservationAux.idParkingLot == "") {
+                            val resultParkingLotQuery =
+                              parkingLotTable!!.where().field("stateLot").eq("free").execute().get()
+                            for(parkingLotAux in resultParkingLotQuery){
+                                parkingLots!!.add(parkingLotAux)
+                            }
+                            parkingLot = parkingLots!![(0 until parkingLots!!.size).random()]
+                            reservationCheck.idParkingLot = parkingLot.id
+                            reservationTable!!.update(reservationCheck)
+                            //val resultParkingLotQuery =
+                              //  parkingLotTable!!.where().field("id").eq(reservationAux.idParkingLot).execute().get()
+
+                        }
+                    }
+                }
+
+                    uiThread {
+                        calculateStart("RRRD")
+                        finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
+
+                        if(parkingRectangles.containsKey(finalRectangle)){
+
+                            val rectAux = RectF(
+                                parkingRectangles[finalRectangle]!!.left , // left
+                                parkingRectangles[finalRectangle]!!.top , // top
+                                parkingRectangles[finalRectangle]!!.right , // right
+                                parkingRectangles[finalRectangle]!!.bottom  // bottom
+                            )
+
+                            canvas.drawRoundRect(
+                                rectAux, // rect
+                                cornersRadius.toFloat(), // rx
+                                cornersRadius.toFloat(), // ry
+                                paintLotsS // Paint
+                            )
+                            parkingRectangles.replace(finalRectangle, rectAux)
+                        }
+                    }
+
+                }
+        } catch (e: MalformedURLException) {
+            AzureClient.getInstance(this).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")
+        } catch (e: java.lang.Exception){
+            AzureClient.getInstance(this).createAndShowDialog(e, "Error")
+        }
+        //obtainParkingLot()
+
+
         setSupportActionBar(Guidetoolbar)
         Guidetoolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
         Guidetoolbar.setNavigationOnClickListener {
@@ -122,14 +230,14 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
 
     override fun onResume() {
         super.onResume()
-        if (bluetoothAdapter != null && !bluetoothAdapter!!.isEnabled)
+        /*if (bluetoothAdapter != null && !bluetoothAdapter!!.isEnabled)
         {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBtIntent, 1)
         }
 
             mLEScanner = bluetoothAdapter!!.bluetoothLeScanner
-            scanLeDevice(true)
+            scanLeDevice(true)*/
 
     }
     override fun onPause() {
@@ -189,6 +297,45 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                 /*val intent = Intent(this, ClientMapActivity::class.java)
                 startActivity(intent)*/}
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>, grantResults: IntArray
+    ) {
+        when (requestCode) {
+            PERMISSION_REQUEST_COARSE_LOCATION -> {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Log.d(FragmentActivity.TAG, "coarse location permission granted")
+                } else {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Functionality limited")
+                    builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.")
+                    builder.setPositiveButton(android.R.string.ok, null)
+                    builder.setOnDismissListener { }
+                    builder.show()
+                }
+                return
+            }
+        }
+    }
+
+
+
+    private fun obtainParkingLot(){
+
+        startGuiding()
+    }
+
+    private fun startGuiding(){
+        if (bluetoothAdapter != null && !bluetoothAdapter!!.isEnabled)
+        {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBtIntent, 1)
+        }
+
+        mLEScanner = bluetoothAdapter!!.bluetoothLeScanner
+        scanLeDevice(true)
     }
 
     private val mScanCallback = object : ScanCallback() {
@@ -353,59 +500,514 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             UUID.fromString("69d9fdd7-54fa-4987-aa3f-43b5f4cabcbf") -> {
                 Log.e("aqui", String(characteristic.value))
                 routeTxt.text = String(characteristic.value)
-                /*val  bitmap = Bitmap.createBitmap(
-                        500, // Width
-                        300, // Height
-                        Bitmap.Config.ARGB_8888 // Config
-                )
 
-                // Initialize a new Canvas instance
-                val canvas = Canvas(bitmap)
-
-                // Draw a solid color on the canvas as background
-                canvas.drawColor(Color.LTGRAY)
-
-                // Initialize a new Paint instance to draw the line
-                val paint = Paint()
-                // Line color
-                paint.color = Color.RED
-                paint.style = Paint.Style.STROKE
-                // Line width in pixels
-                paint.strokeWidth = 8F
-                paint.isAntiAlias = true
-
-                // Set a pixels value to offset the line from canvas edge
-                val offset = 50F
-
-                /*
-                    public void drawLine (float startX, float startY, float stopX, float stopY, Paint paint)
-                        Draw a line segment with the specified start and stop x,y coordinates, using
-                        the specified paint.
-
-                        Note that since a line is always "framed", the Style is ignored in the paint.
-
-                        Degenerate lines (length is 0) will not be drawn.
-
-                    Parameters
-                        startX : The x-coordinate of the start point of the line
-                        startY : The y-coordinate of the start point of the line
-                        paint : The paint used to draw the line
-
-                */
-
-                // Draw a line on canvas at the center position
-                canvas.drawLine(
-                        offset, // startX
-                        canvas.height / 2F, // startY
-                        canvas.width - offset, // stopX
-                        canvas.height / 2F, // stopY
-                        paint // Paint
-                )
-
-                // Display the newly created bitmap on app interface
-                linesView.setImageBitmap(bitmap)*/
             }
         }
+    }
+
+    private fun loadParking(){
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+
+        val bitmap = Bitmap.createBitmap(
+            displayMetrics.widthPixels, // Width
+            displayMetrics.heightPixels, // Height
+            Bitmap.Config.ARGB_8888 // Config
+        )
+
+        // Initialize a new Canvas instance
+        canvas = Canvas(bitmap)
+
+
+        // Draw a solid color on the canvas as background
+        canvas.drawColor(Color.WHITE)
+
+        // Initialize a new Paint instance to draw the rounded rectangle
+
+        paintLotsNS.style = Paint.Style.FILL
+        paintLotsNS.color = Color.RED
+        paintLotsNS.isAntiAlias = true
+
+        paintLotsS.style = Paint.Style.FILL
+        paintLotsS.color = Color.GREEN
+        paintLotsS.isAntiAlias = true
+
+        paintPath.style = Paint.Style.FILL
+        paintPath.color = Color.BLUE
+        paintPath.strokeWidth = 10f
+        paintPath.isAntiAlias = true
+
+        paintArrow.style = Paint.Style.STROKE
+        paintArrow.color = Color.CYAN
+        paintArrow.strokeWidth = 10f
+        paintArrow.isAntiAlias = true
+
+        paintText.style = Paint.Style.FILL
+        paintText.color = Color.BLACK
+        paintText.strokeWidth = 3f
+        paintText.textSize = 40f
+
+        paintText.isAntiAlias = true
+
+
+
+        // Initialize a new RectF instance
+        val rect11 = RectF(
+            50.toFloat(), // left
+            1400.toFloat(), // top
+            200.toFloat(), // right
+            1500.toFloat() // bottom
+        )
+
+        val rect12 = RectF(
+            50.toFloat(), // left
+            1250.toFloat(), // top
+            200.toFloat(), // right
+            1350.toFloat() // bottom
+        )
+
+        val rect21 = RectF(
+            250.toFloat(), // left
+            1400.toFloat(), // top
+            400.toFloat(), // right
+            1500.toFloat() // bottom
+        )
+
+
+        val rect22 = RectF(
+            250.toFloat(), // left
+            1250.toFloat(), // top
+            400.toFloat(), // right
+            1350.toFloat() // bottom
+        )
+
+
+
+
+
+
+        // Initialize a new RectF instance
+        val rect14 = RectF(
+            50.toFloat(), // left
+            500.toFloat(), // top
+            200.toFloat(), // right
+            600.toFloat() // bottom
+        )
+
+        val rect13 = RectF(
+            50.toFloat(), // left
+            650.toFloat(), // top
+            200.toFloat(), // right
+            750.toFloat() // bottom
+        )
+
+        val rect23 = RectF(
+            250.toFloat(), // left
+            650.toFloat(), // top
+            400.toFloat(), // right
+            750.toFloat() // bottom
+        )
+
+        val rect24 = RectF(
+            250.toFloat(), // left
+            500.toFloat(), // top
+            400.toFloat(), // right
+            600.toFloat() // bottom
+        )
+
+
+
+
+
+
+
+
+
+        // Initialize a new RectF instance
+        val rect31 = RectF(
+            650.toFloat(), // left
+            1400.toFloat(), // top
+            800.toFloat(), // right
+            1500.toFloat() // bottom
+        )
+
+        val rect32 = RectF(
+            650.toFloat(), // left
+            1250.toFloat(), // top
+            800.toFloat(), // right
+            1350.toFloat() // bottom
+        )
+
+        val rect41 = RectF(
+            850.toFloat(), // left
+            1400.toFloat(), // top
+            1000.toFloat(), // right
+            1500.toFloat() // bottom
+        )
+
+
+        val rect42 = RectF(
+            850.toFloat(), // left
+            1250.toFloat(), // top
+            1000.toFloat(), // right
+            1350.toFloat() // bottom
+        )
+
+
+
+
+
+
+        // Initialize a new RectF instance
+        val rect33 = RectF(
+            650.toFloat(), // left
+            650.toFloat(), // top
+            800.toFloat(), // right
+            750.toFloat() // bottom
+        )
+
+        val rect34 = RectF(
+            650.toFloat(), // left
+            500.toFloat(), // top
+            800.toFloat(), // right
+            600.toFloat() // bottom
+        )
+
+        val rect43 = RectF(
+            850.toFloat(), // left
+            650.toFloat(), // top
+            1000.toFloat(), // right
+            750.toFloat() // bottom
+        )
+
+        val rect44 = RectF(
+            850.toFloat(), // left
+            500.toFloat(), // top
+            1000.toFloat(), // right
+            600.toFloat() // bottom
+        )
+
+
+        parkingRectangles["rect11"] = rect11
+        parkingRectangles["rect12"] = rect12
+        parkingRectangles["rect13"] = rect13
+        parkingRectangles["rect14"] = rect14
+        parkingRectangles["rect21"] = rect21
+        parkingRectangles["rect22"] = rect22
+        parkingRectangles["rect23"] = rect23
+        parkingRectangles["rect24"] = rect24
+        parkingRectangles["rect31"] = rect31
+        parkingRectangles["rect32"] = rect32
+        parkingRectangles["rect33"] = rect33
+        parkingRectangles["rect34"] = rect34
+        parkingRectangles["rect41"] = rect41
+        parkingRectangles["rect42"] = rect42
+        parkingRectangles["rect43"] = rect43
+        parkingRectangles["rect44"] = rect44
+
+        // Define the corners radius of rounded rectangle
+
+
+        // Finally, draw the rounded corners rectangle object on the canvas
+
+        for(parkingRectangle in parkingRectangles.values){
+            canvas.drawRoundRect(
+                parkingRectangle, // rect
+                cornersRadius.toFloat(), // rx
+                cornersRadius.toFloat(), // ry
+                paintLotsNS // Paint
+            )
+        }
+
+        // Display the newly created bitmap on app interface
+        testing.setImageBitmap(bitmap)
+    }
+
+    private fun fillArrow(x0: Float, y0: Float, x1: Float, y1: Float, arrowHeadAngle: Int) {
+
+
+        val arrowHeadLenght = 50
+        // arrowHeadAngle = 45
+        val linePts = floatArrayOf(x1 - arrowHeadLenght, y1, x1, y1)
+        val linePts2 = floatArrayOf(x1, y1, x1, y1 + arrowHeadLenght)
+        val rotateMat = Matrix()
+
+        //get the center of the line
+
+        //set the angle
+        val angle = Math.atan2((y1 - y0).toDouble(), (x1 - x0).toDouble()) * 180 / Math.PI + arrowHeadAngle
+
+        //rotate the matrix around the center
+        rotateMat.setRotate(angle.toFloat(), x1, y1)
+        rotateMat.mapPoints(linePts)
+        rotateMat.mapPoints(linePts2)
+
+        canvas.drawLine(linePts[0], linePts[1], linePts[2], linePts[3], paintArrow)
+        canvas.drawLine(linePts2[0], linePts2[1], linePts2[2], linePts2[3], paintArrow)
+    }
+    private fun calculateStart(letters: String){
+
+        var x1 = 0f
+        var y1 = 0f
+        var orientation = ""
+        //Empieza dibujar las lineas
+        val firstNumber = initialLotS[0].toString().toInt()
+        val secondNumber = initialLotS[2].toString().toInt()
+
+        if(firstNumber == 1 || firstNumber == 4){
+            //Si empieza por el oeste sino, empieza por el este
+            if(firstNumber == 1){
+                orientation = "W"
+                x1 = 50f
+                y1 = 1000f
+                canvas.drawText("Se encuentra aqui", x1 - 50, y1 - 100, paintText)
+            }else if(firstNumber == 4){
+                orientation = "E"
+                x1 = 1000f
+                y1 = 1000f
+                canvas.drawText("Se encuentra aqui", x1 +50, y1 - 100, paintText)
+            }
+
+        }else if(secondNumber == 1 || secondNumber == 4){
+            //Si empieza por el sur, sino, empieza por el norte
+            if (secondNumber == 1){
+                orientation = "S"
+                x1 = 500f
+                y1 = 1500f
+                canvas.drawText("Se encuentra aqui", x1 - 150, y1 + 100, paintText)
+            }else if (secondNumber == 4){
+                orientation = "N"
+                x1 = 500f
+                y1 = 400f
+                canvas.drawText("Se encuentra aqui", x1 - 150, y1 - 100, paintText)
+            }
+
+        }
+
+        drawLine(x1, y1, orientation, letters)
+
+    }
+
+    private fun drawLine(x: Float, y: Float, orientation: String, letters: String){
+        val offsetH = 375f //100 en 100
+        val offsetV = 300f //50 en 50
+        val offsetHE = 250f
+        val offsetVE = 650f
+
+        var x1 = x
+        var y1 = y
+
+        var i1 = initialLotS[0].toString().toInt()
+        var i2 = initialLotS[2].toString().toInt()
+
+        var letter: String
+        for( i in 0 until letters.length){
+
+            letter = letters[i].toString()
+
+            when (orientation) {
+                "W" -> {
+                    when (letter) {
+                        "R" -> {
+
+                            x1 += if(limit(i1, i2, i1 +1, i2, orientation)) {
+                                canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
+                                fillArrow(x1 + offsetHE, y1, x1, y1, 225)
+
+                                offsetHE
+                            } else {
+                                canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
+                                fillArrow(x1 + offsetH, y1, x1, y1, 225)
+                                offsetH
+                            }
+                            i1 += 1
+
+                        }
+                        "D" -> {
+                            y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
+                                canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
+                                fillArrow(x1, y1 + offsetVE, x1, y1, 225)
+
+                                offsetVE
+                            }else{
+                                canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
+                                fillArrow(x1, y1 + offsetV, x1, y1, 225)
+                                offsetV
+                            }
+
+                            i2 -= 1
+                        }
+                        else -> {
+                            y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
+                                canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
+                                fillArrow(x1, y1 - offsetVE, x1, y1, 225)
+
+                                offsetVE
+                            }else{
+                                canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
+                                fillArrow(x1, y1 - offsetV, x1, y1, 225)
+                                offsetV
+                            }
+                            i2 +=1
+                        }
+                    }
+                }
+                "E" -> {
+                    when (letter) {
+                        "R" -> {
+
+                            x1 -= if(limit(i1, i2,i1 -1, i2, orientation)) {
+                                canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
+                                fillArrow(x1 - offsetHE, y1, x1, y1, 225)
+
+                                offsetHE
+                            } else {
+                                canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
+                                fillArrow(x1 - offsetH, y1, x1, y1, 225)
+                                offsetH
+                            }
+                            i1 -=1
+                        }
+                        "D" -> {
+                            y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
+                                canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
+                                fillArrow(x1, y1 - offsetVE, x1, y1, 225)
+
+                                offsetVE
+                            }else{
+                                canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
+                                fillArrow(x1, y1 - offsetV, x1, y1, 225)
+                                offsetV
+                            }
+                            i2 +=1
+                        }
+                        else -> {
+                            y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
+                                canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
+                                fillArrow(x1, y1 + offsetVE, x1, y1, 225)
+
+                                offsetVE
+                            }else{
+                                canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
+                                fillArrow(x1, y1 + offsetV, x1, y1, 225)
+                                offsetV
+                            }
+                            i2 -=1
+                        }
+                    }
+                }
+                "S" -> {
+                    when (letter) {
+                        "R" -> {
+                            y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
+                                canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
+                                fillArrow(x1, y1 - offsetVE, x1, y1, 225)
+
+                                offsetVE
+                            }else{
+                                canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
+                                fillArrow(x1, y1 - offsetV, x1, y1, 225)
+                                offsetV
+                            }
+                            i2 +=1
+                        }
+                        "D" -> {
+                            x1 += if(limit(i1, i2, i1 +1 , i2, orientation)) {
+                                canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
+                                fillArrow(x1 + offsetHE, y1, x1, y1, 225)
+
+                                offsetHE
+                            } else {
+                                canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
+                                fillArrow(x1 + offsetH, y1, x1, y1, 225)
+                                offsetH
+                            }
+                            i1 +=1
+                        }
+                        else -> {
+                            x1 -= if(limit(i1, i2, i1 - 1, i2, orientation)) {
+                                canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
+                                fillArrow(x1 - offsetHE, y1, x1, y1, 225)
+
+                                offsetHE
+                            } else {
+                                canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
+                                fillArrow(x1 - offsetH, y1, x1, y1, 225)
+                                offsetH
+                            }
+                            i1 -=1
+                        }
+                    }
+                }
+                else -> {
+                    when (letter) {
+                        "R" -> {
+                            y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
+                                canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
+                                fillArrow(x1, y1 + offsetVE, x1, y1, 225)
+                                offsetVE
+                            }else{
+                                canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
+                                fillArrow(x1, y1 + offsetV, x1, y1, 225)
+                                offsetV
+                            }
+                            i2 -=1
+                        }
+                        "D" -> {
+                            x1 -= if(limit(i1, i2,  i1 -1, i2, orientation)) {
+                                canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
+                                fillArrow(x1 - offsetHE, y1 , x1, y1, 225)
+                                offsetHE
+                            } else {
+                                canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
+                                fillArrow(x1 - offsetH, y1 , x1, y1, 225)
+                                offsetH
+                            }
+                            i1 -=1
+                        }
+                        else -> {
+                            x1 += if(limit(i1, i2, i1 +1  , i2, orientation)) {
+                                canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
+                                fillArrow(x1 + offsetHE, y1 , x1, y1, 225)
+                                offsetHE
+                            } else {
+                                canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
+                                fillArrow(x1 + offsetH, y1 , x1, y1, 225)
+                                offsetH
+                            }
+                            i1 +=1
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun limit(x1: Int, y1: Int, x2: Int, y2: Int, orientation: String):Boolean{
+        when (orientation) {
+            "W" -> {
+                if(x1 == 2 && x2 == 3){
+                    return true
+                }
+            }
+            "E" -> {
+                if(x1 == 3 && x2 == 2){
+                    return true
+                }
+            }
+            "S" -> {
+                if(y1 == 2 && y2 == 3){
+                    return true
+                }
+            }
+            "N" -> {
+                if(y1 == 3 && y2 == 2){
+                    return true
+                }
+            }
+        }
+        return false
     }
 
 
@@ -435,26 +1037,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
-        when (requestCode) {
-            PERMISSION_REQUEST_COARSE_LOCATION -> {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Log.d(FragmentActivity.TAG, "coarse location permission granted")
-                } else {
-                    val builder = AlertDialog.Builder(this)
-                    builder.setTitle("Functionality limited")
-                    builder.setMessage("Since location access has not been granted, this app will not be able to discover beacons when in the background.")
-                    builder.setPositiveButton(android.R.string.ok, null)
-                    builder.setOnDismissListener { }
-                    builder.show()
-                }
-                return
-            }
-        }
-    }
+
 
 
 }
