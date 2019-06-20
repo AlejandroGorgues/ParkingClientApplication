@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -20,6 +21,7 @@ import com.akexorcist.googledirection.model.Direction
 import com.akexorcist.googledirection.util.DirectionConverter
 import com.example.parkingclientapplication.GeofenceTransitionIntentService
 import com.example.parkingclientapplication.R
+import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.Reservation
 import com.google.android.gms.location.Geofence
@@ -30,7 +32,8 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import kotlinx.android.synthetic.main.app_bar_guide_map.*
-
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource.OnLocationChangedListener,
@@ -43,7 +46,6 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
     private var permissions: ArrayList<String> = ArrayList()
 
     private var uiSettings: UiSettings? = null
-    private var mClient: MobileServiceClient? = null
     private var locationLatLng: LatLng? = null
 
     private var currentLocation: Location? = null
@@ -150,11 +152,18 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
                     // location-related task you need to do.
                     if ((ContextCompat.checkSelfPermission(
                             this,
-                            permissions[0]) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-                            this,
-                            permissions[1]) == PackageManager.PERMISSION_GRANTED))
+                            permissions[0]) == PackageManager.PERMISSION_GRANTED))
                     {
                         mapFragment!!.isMyLocationEnabled = true
+                        val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+                        mFusedLocationClient.lastLocation
+                            .addOnSuccessListener { location ->
+                                currentLocation = location
+                                locationLatLng = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                                drawMarker(locationLatLng!!, "Mi localizacion")
+                            }
+
+                            .addOnFailureListener { e -> e.printStackTrace() }
                     }
                 }
                 else
@@ -218,19 +227,19 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
 
     //Obtiene la localización actual del dispositivo y lo asocia a un marcador
     private fun getCurrentLocation() {
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                permissions[0]
+            )
+                    == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                this,
+                permissions[1]
+            )
+                    == PackageManager.PERMISSION_GRANTED)
+        ) {
+            if (checkLocationPermission()) {
 
-        if (checkLocationPermission()) {
-            if ((ContextCompat.checkSelfPermission(
-                    this,
-                    permissions[0]
-                )
-                        == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-                    this,
-                    permissions[1]
-                )
-                        == PackageManager.PERMISSION_GRANTED)
-            ) {
-
+                mapFragment!!.isMyLocationEnabled = true
                 val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
                 mFusedLocationClient.lastLocation
                     .addOnSuccessListener { location ->
@@ -249,14 +258,23 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
             ContextCompat.checkSelfPermission(
                 this,
                 permissions[0]
-            ) != PackageManager.PERMISSION_GRANTED -> {
+            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                this,
+                permissions[1]
+            ) != PackageManager.PERMISSION_GRANTED  -> {
 
                 // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
+                if ((ActivityCompat.shouldShowRequestPermissionRationale(
                         this,
                         permissions[0]
                     )
-                ) {
+                ) && (ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    permissions[0]
+                )
+                        )
+                        )
+                {
 
                     // Show an explanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
@@ -268,7 +286,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
                             //Prompt the user once explanation has been shown
                             ActivityCompat.requestPermissions(
                                 this,
-                                arrayOf(permissions[0]),
+                                permissions.toTypedArray(),
                                 1
                             )
                         }
@@ -280,46 +298,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
                     // No explanation needed, we can request the permission.
                     ActivityCompat.requestPermissions(
                         this,
-                        arrayOf(permissions[0]),
-                        1
-                    )
-                }
-                return false
-            }
-            ContextCompat.checkSelfPermission(
-                this,
-                permissions[1]
-            ) != PackageManager.PERMISSION_GRANTED -> {
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        this,
-                        permissions[1]
-                    )
-                ) {
-
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    AlertDialog.Builder(this)
-                        .setTitle("")
-                        .setMessage("")
-                        .setPositiveButton("Ok") { _, _ ->
-                            //Prompt the user once explanation has been shown
-                            ActivityCompat.requestPermissions(
-                                this,
-                                arrayOf(permissions[1]),
-                                1
-                            )
-                        }
-                        .create()
-                        .show()
-
-
-                } else {
-                    // No explanation needed, we can request the permission.
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(permissions[1]),
+                        permissions.toTypedArray(),
                         1
                     )
                 }
@@ -342,7 +321,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
 
     private fun getGeofencingRequest(): GeofencingRequest {
         val builder = GeofencingRequest.Builder()
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_DWELL)
         builder.addGeofences(geofenceList)
         return builder.build()
     }
@@ -395,8 +374,9 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
                 1609F
             )
 
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL)
+            .setLoiteringDelay(1000)
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .build())
 
     }

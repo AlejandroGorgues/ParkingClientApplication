@@ -80,6 +80,8 @@ class ReservationProfileFragment : Fragment() {
         edEstadoReserv.setText(reservation.state)
         edPrecioReserv.setText(reservation.expensesActive.toString())
 
+        auth = FirebaseAuth.getInstance()
+
         parkingLots = ArrayList()
 
         bGuide = view.findViewById(R.id.guideAccess)

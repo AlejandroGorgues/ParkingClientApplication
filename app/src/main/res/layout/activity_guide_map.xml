@@ -8,7 +8,7 @@
         tools:context=".activities.GuideMapActivity">
 
     <include
-            layout="@layout/app_bar_client_map"
+            layout="@layout/app_bar_guide_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

@@ -64,10 +64,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     private var finalLot: BluetoothGattCharacteristic? = null
     private var direction: BluetoothGattCharacteristic? = null
 
-    private var parkingLotId: String? = ""
     private lateinit var reservation: Reservation
     private lateinit var reservationCheck: Reservation
-    private lateinit var parkingLot: ParkingLot
 
     private var devicesResult: ArrayList<ScanResult>? = null
     private var parkingLots: ArrayList<ParkingLot>? = null
@@ -105,10 +103,10 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
         handler = Handler()
-        //linesView = findViewById(R.id.iv)
-        routeTxt = findViewById(R.id.routeTxt)
+
         devicesResult = ArrayList()
         parkingLots = ArrayList()
+        reservationCheck = Reservation()
 
         reservation = intent!!.getBundleExtra("reservationSelected")!!.getParcelable("reservation")!!
 
@@ -145,7 +143,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             }
         }
 
-        loadParking()
+
         try {
             // Create the client instance, using the provided mobile app URL.
             mClient = AzureClient.getInstance(this).getClient()
@@ -162,27 +160,20 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
             reservationTable = mClient!!.getTable(Reservation::class.java)
             parkingLotTable = mClient!!.getTable(ParkingLot::class.java)
             doAsync {
-                while (parkingLot.id == ""){
+                while (reservationCheck.idParkingLot == null || reservationCheck.idParkingLot == ""){
                     val resultQuery = reservationTable!!.where().field("id").eq(reservation.id).execute().get()
                     for (reservationAux in resultQuery) {
-                        reservationCheck = reservationAux
-                        if(reservationAux.idParkingLot == "") {
-                            val resultParkingLotQuery =
-                              parkingLotTable!!.where().field("stateLot").eq("free").execute().get()
-                            for(parkingLotAux in resultParkingLotQuery){
-                                parkingLots!!.add(parkingLotAux)
-                            }
-                            parkingLot = parkingLots!![(0 until parkingLots!!.size).random()]
-                            reservationCheck.idParkingLot = parkingLot.id
-                            reservationTable!!.update(reservationCheck)
-                            //val resultParkingLotQuery =
-                              //  parkingLotTable!!.where().field("id").eq(reservationAux.idParkingLot).execute().get()
 
-                        }
+                        reservationCheck = reservationAux
+
                     }
                 }
+                val resultParkingLotQuery =
+                  parkingLotTable!!.where().field("id").eq(reservationCheck.idParkingLot).execute().get()
 
-                    uiThread {
+                for(parkingLot in resultParkingLotQuery){
+                    runOnUiThread {
+                        loadParking()
                         calculateStart("RRRD")
                         finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
 
@@ -204,6 +195,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                             parkingRectangles.replace(finalRectangle, rectAux)
                         }
                     }
+                }
+
 
                 }
         } catch (e: MalformedURLException) {

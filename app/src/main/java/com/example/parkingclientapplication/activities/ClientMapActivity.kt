@@ -13,10 +13,10 @@ import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.fragments.*
 import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
-import kotlinx.android.synthetic.main.activity_client_map.*
-import kotlinx.android.synthetic.main.app_bar_client_map.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.integration.android.IntentIntegrator
+import kotlinx.android.synthetic.main.activity_client_map.*
+import kotlinx.android.synthetic.main.app_bar_client_map.*
 
 
 class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments, ActivityCompat.OnRequestPermissionsResultCallback  {
