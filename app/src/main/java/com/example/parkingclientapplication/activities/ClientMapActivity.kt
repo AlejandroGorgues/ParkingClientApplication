@@ -9,18 +9,21 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.widget.Toast
+
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.fragments.*
 import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.integration.android.IntentIntegrator
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import kotlinx.android.synthetic.main.activity_client_map.*
 import kotlinx.android.synthetic.main.app_bar_client_map.*
 
 
-class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments, ActivityCompat.OnRequestPermissionsResultCallback  {
 
+
+class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, LoadFragments, ActivityCompat.OnRequestPermissionsResultCallback  {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

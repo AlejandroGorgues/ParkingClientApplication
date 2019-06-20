@@ -141,20 +141,20 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
 
         try {
+            // Create the client instance, using the provided mobile app URL.
+            mClient = AzureClient.getInstance(context!!).getClient()
 
+            /*mClient!!.setAndroidHttpClientFactory {
+                val client = OkHttpClient()
+                client.readTimeoutMillis()
+                client.writeTimeoutMillis()
+                client
+            }*/
+
+
+            parkingTable = mClient!!.getTable(Parking::class.java)
             doAsync {
-                // Create the client instance, using the provided mobile app URL.
-                mClient = AzureClient.getInstance(context!!).getClient()
 
-                mClient!!.setAndroidHttpClientFactory {
-                    val client = OkHttpClient()
-                    client.readTimeoutMillis()
-                    client.writeTimeoutMillis()
-                    client
-                }
-
-
-                parkingTable = mClient!!.getTable(Parking::class.java)
                 val resultQueryParking = parkingTable!!.execute().get()
                 for (parking in resultQueryParking) {
                     parkings.add(parking)
@@ -181,7 +181,7 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
 
                     val estado = if (selectedParking.stateParking!!){
-                        "abierto"
+                        "Abierto"
                     }else{
                         "Cerrado"
                     }

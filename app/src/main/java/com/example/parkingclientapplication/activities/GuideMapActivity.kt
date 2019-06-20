@@ -118,6 +118,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
         mapFragment = googleMap!!
         drawMarker(LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble()), parking.nameParking!!)
 
+
         uiSettings = mapFragment!!.uiSettings
 
         uiSettings!!.isMyLocationButtonEnabled = true
@@ -195,8 +196,9 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
     }
 
     private fun startGuiding(){
-        getCurrentLocation()
         createParkingGeofence(parking.latitude!!, parking.longitude!!)
+        getCurrentLocation()
+
         //getDirection(LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble()))
     }
 
@@ -227,30 +229,31 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
 
     //Obtiene la localización actual del dispositivo y lo asocia a un marcador
     private fun getCurrentLocation() {
-        if ((ContextCompat.checkSelfPermission(
-                this,
-                permissions[0]
-            )
-                    == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-                this,
-                permissions[1]
-            )
-                    == PackageManager.PERMISSION_GRANTED)
-        ) {
-            if (checkLocationPermission()) {
+        if (checkLocationPermission()) {
+            if ((ContextCompat.checkSelfPermission(
+                    this,
+                    permissions[0]
+                )
+                        == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                    this,
+                    permissions[1]
+                )
+                        == PackageManager.PERMISSION_GRANTED)
+            ) {
 
-                mapFragment!!.isMyLocationEnabled = true
-                val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-                mFusedLocationClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        currentLocation = location
-                        locationLatLng = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
-                        drawMarker(locationLatLng!!, "Mi localizacion")
-                    }
+                    mapFragment!!.isMyLocationEnabled = true
+                    val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+                    mFusedLocationClient.lastLocation
+                        .addOnSuccessListener { location ->
+                            currentLocation = location
+                            locationLatLng = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+                            drawMarker(locationLatLng!!, "Mi localizacion")
+                        }
 
-                    .addOnFailureListener { e -> e.printStackTrace() }
+                        .addOnFailureListener { e -> e.printStackTrace() }
+
+                }
             }
-        }
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -267,14 +270,11 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
                 if ((ActivityCompat.shouldShowRequestPermissionRationale(
                         this,
                         permissions[0]
-                    )
-                ) && (ActivityCompat.shouldShowRequestPermissionRationale(
+                    )) && (ActivityCompat.shouldShowRequestPermissionRationale(
                     this,
                     permissions[0]
-                )
-                        )
-                        )
-                {
+                    ))
+                ){
 
                     // Show an explanation to the user *asynchronously* -- don't block
                     // this thread waiting for the user's response! After the user
@@ -336,29 +336,27 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
 
 
     private fun addGeofenceClient(){
-        if (checkLocationPermission()) {
-            if ((ContextCompat.checkSelfPermission(
-                    this,
-                    permissions[0]
-                )
-                        == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-                    this,
-                    permissions[1]
-                )
-                        == PackageManager.PERMISSION_GRANTED)
-            ) {
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                permissions[0]
+            )
+                    == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                this,
+                permissions[1]
+            )
+                    == PackageManager.PERMISSION_GRANTED)
+        ) {
 
-                geofencingClient.addGeofences(getGeofencingRequest(), geofencePendingIntent)?.run {
-                    addOnSuccessListener {
-                        // Geofences added
-                        // ...
+            geofencingClient.addGeofences(getGeofencingRequest(), geofencePendingIntent)?.run {
+                addOnSuccessListener {
+                    // Geofences added
+                    // ...
 
-                        //Toast.makeText(applicationContext,"geofenceadded", Toast.LENGTH_SHORT).show()
-                    }
-                    addOnFailureListener {
-                        // Failed to add geofences
-                        // ...
-                    }
+                    //Toast.makeText(applicationContext,"geofenceadded", Toast.LENGTH_SHORT).show()
+                }
+                addOnFailureListener {
+                    // Failed to add geofences
+                    // ...
                 }
             }
         }
