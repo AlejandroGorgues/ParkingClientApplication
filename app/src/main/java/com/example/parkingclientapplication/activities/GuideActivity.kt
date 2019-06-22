@@ -25,11 +25,11 @@ import android.graphics.*
 import android.location.LocationManager
 import android.os.Build
 import android.os.Handler
+import android.support.annotation.RequiresApi
 import android.support.v7.app.AlertDialog
 import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.*
-import androidx.annotation.RequiresApi
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Parking
@@ -78,9 +78,6 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
     }
-
-
-    private lateinit var routeTxt: TextView
 
     private lateinit var paintLotsNS: Paint
     private lateinit var paintLotsS: Paint
@@ -172,9 +169,11 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                   parkingLotTable!!.where().field("id").eq(reservationCheck.idParkingLot).execute().get()
 
                 for(parkingLot in resultParkingLotQuery){
+                    finalLotS = parkingLot.position!!
                     runOnUiThread {
                         loadParking()
-                        calculateStart("RRRD")
+                        obtainParkingLot()
+                        /*calculateStart("RRRD")
                         finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
 
                         if(parkingRectangles.containsKey(finalRectangle)){
@@ -193,7 +192,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                                 paintLotsS // Paint
                             )
                             parkingRectangles.replace(finalRectangle, rectAux)
-                        }
+                        }*/
                     }
                 }
 
@@ -379,6 +378,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         }
         val btDevice = devicesResult!!.filter { it.device.address ==  "B8:27:EB:D2:A6:DE"}
         Log.e("aqui", closestDeviceName)
+        initialLotS = closestDeviceName
         Log.e("aqui", btDevice.toString())
         connectToDevice(btDevice[0].device)
     }
@@ -427,6 +427,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
 
 
 
+        @RequiresApi(Build.VERSION_CODES.N)
         override fun onCharacteristicRead(gatt:BluetoothGatt,
                                           characteristic:BluetoothGattCharacteristic, status:Int) {
             Log.i("onCharacteristicRead", characteristic.toString())
@@ -487,12 +488,33 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun broadcastUpdate(action: String, characteristic: BluetoothGattCharacteristic) {
 
         when (characteristic.uuid) {
             UUID.fromString("69d9fdd7-54fa-4987-aa3f-43b5f4cabcbf") -> {
                 Log.e("aqui", String(characteristic.value))
-                routeTxt.text = String(characteristic.value)
+
+                calculateStart(String(characteristic.value))
+                finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
+
+                if(parkingRectangles.containsKey(finalRectangle)){
+
+                    val rectAux = RectF(
+                        parkingRectangles[finalRectangle]!!.left , // left
+                        parkingRectangles[finalRectangle]!!.top , // top
+                        parkingRectangles[finalRectangle]!!.right , // right
+                        parkingRectangles[finalRectangle]!!.bottom  // bottom
+                    )
+
+                    canvas.drawRoundRect(
+                        rectAux, // rect
+                        cornersRadius.toFloat(), // rx
+                        cornersRadius.toFloat(), // ry
+                        paintLotsS // Paint
+                    )
+                    parkingRectangles.replace(finalRectangle, rectAux)
+                }
 
             }
         }

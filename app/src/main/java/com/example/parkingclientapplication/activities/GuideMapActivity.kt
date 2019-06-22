@@ -119,6 +119,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
         drawMarker(LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble()), parking.nameParking!!)
 
 
+
         uiSettings = mapFragment!!.uiSettings
 
         uiSettings!!.isMyLocationButtonEnabled = true
