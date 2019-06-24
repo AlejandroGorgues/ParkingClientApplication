@@ -2,6 +2,9 @@ package com.example.parkingclientapplication.fragments
 
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 
 import com.example.parkingclientapplication.R
@@ -18,14 +22,17 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 
+import kotlinx.android.synthetic.main.fragment_login.*
+
+
 class LoginClientFragment : Fragment() {
 
 
     private lateinit var loadFragments: LoadFragments
 
     private lateinit var buttonAccess: Button
-    private lateinit var buttonRegister: Button
 
+    private lateinit var txtRegister: TextView
     private lateinit var edPasswordLogin: EditText
     private lateinit var edEmailLogin: EditText
 
@@ -38,8 +45,9 @@ class LoginClientFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
         auth = FirebaseAuth.getInstance()
 
+        txtRegister = view.findViewById(R.id.txtRegister)
+
         buttonAccess = view.findViewById(R.id.buttonAccess)
-        buttonRegister = view.findViewById(R.id.buttonRegister)
 
         edEmailLogin = view.findViewById(R.id.edEmailLogin)
         edPasswordLogin = view.findViewById(R.id.edPasswordLogin)
@@ -49,6 +57,8 @@ class LoginClientFragment : Fragment() {
         loadFragments = activity as LoadFragments
 
         buttonAccess.setOnClickListener {
+            loginProgressBar.visibility = View.VISIBLE
+
             auth.signInWithEmailAndPassword(edEmailLogin.text.toString(), edPasswordLogin.text.toString())
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -56,6 +66,7 @@ class LoginClientFragment : Fragment() {
                         //Log.d(TAG, "signInWithEmail:success")
                         val intent = Intent(activity, ClientMapActivity::class.java)
                         startActivity(intent)
+                        loginProgressBar.visibility = View.GONE
                     } else {
                         // If sign in fails, display a message to the user.
                         //Log.w(TAG, "signInWithEmail:failure", task.exception)
@@ -66,7 +77,7 @@ class LoginClientFragment : Fragment() {
 
         }
 
-        buttonRegister.setOnClickListener {
+        txtRegister.setOnClickListener {
             val bundle = Bundle()
             loadFragments.loadFragment(1, bundle)
         }

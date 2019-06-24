@@ -4,6 +4,10 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content" xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
+              android:paddingTop="56dp"
+              android:paddingLeft="24dp"
+              android:paddingRight="24dp"
+              android:layout_gravity="center"
               tools:context=".fragments.BankProfileFragment">
 
     <TextView
@@ -15,6 +19,7 @@
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
 
         <android.support.design.widget.TextInputEditText
@@ -31,6 +36,7 @@
                   android:orientation="horizontal">
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="match_parent"
+                      android:layout_marginEnd="10dp"
                       android:orientation="vertical">
                 <TextView
                         android:layout_width="wrap_content"
@@ -59,13 +65,14 @@
 
             <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_height="wrap_content">
 
                 <android.support.design.widget.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/edSecurityNumber"
-                        android:hint="Security number"/>
+                        android:hint="Number"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -82,6 +89,7 @@
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_height="wrap_content">
 
     <android.support.design.widget.TextInputEditText
@@ -93,6 +101,7 @@
 
     <LinearLayout android:layout_width="wrap_content"
                   android:layout_height="match_parent"
+                  android:layout_gravity="center"
                   android:orientation="horizontal">
 
 
@@ -103,6 +112,7 @@
             android:id="@+id/bUpdateBankProfile"
             android:textColor="@color/whiteText"
             app:backgroundTint="@color/blueButton"
+            android:visibility="invisible"
             android:text="Guardar Cambios"/>
 
     <Button android:layout_width="wrap_content"
@@ -111,7 +121,7 @@
             android:id="@+id/bCreateBankProfile"
             android:textColor="@color/whiteText"
             app:backgroundTint="@color/blueButton"
-            android:text="Asociar perfil bancario"/>
+            android:text="Asociar perfil"/>
         </FrameLayout>
 
     <Button android:layout_width="wrap_content"
@@ -120,8 +130,20 @@
             android:id="@+id/bDeleteBankProfile"
             android:textColor="@color/whiteText"
             app:backgroundTint="@color/blueButton"
-            android:text="Borrar perfil bancario"/>
+            android:text="Borrar perfil"/>
 
     </LinearLayout>
+
+    <ProgressBar
+            android:id="@+id/bankProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:minHeight="50dp"
+            android:minWidth="250dp"
+            android:max="100"
+            android:indeterminate="true"
+            android:progress="0"
+            android:visibility="invisible"/>
 
 </LinearLayout>

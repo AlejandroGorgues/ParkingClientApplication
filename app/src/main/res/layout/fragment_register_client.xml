@@ -6,6 +6,9 @@
               android:gravity="center"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
+              android:paddingTop="56dp"
+              android:paddingLeft="24dp"
+              android:paddingRight="24dp"
               tools:context=".fragments.LoginClientFragment">
 
     <android.support.design.widget.TextInputLayout
@@ -54,14 +57,25 @@
                 android:layout_gravity="center"
                 app:backgroundTint="@color/blueButton"/>
 
-    <Button
+    <TextView
 
-            android:id="@+id/buttonLogin"
+            android:id="@+id/txtLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:textColor="@color/whiteText"
-            android:layout_gravity="center"
-            app:backgroundTint="@color/blueButton"/>
+            android:layout_marginTop="10dp"
+            android:textColor="@color/blue_900"
+            android:text="Pulsa aqui para iniciar con una cuenta"
+            android:layout_gravity="center"/>
+
+    <ProgressBar
+            android:id="@+id/registerProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:minWidth="250dp"
+            android:max="100"
+            android:indeterminate="true"
+            android:progress="0"
+            android:visibility="invisible"/>
 
 </LinearLayout>

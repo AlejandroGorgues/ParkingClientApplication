@@ -150,8 +150,8 @@ class ConfirmSelectionFragment : Fragment() {
 
 
                     runOnUiThread {
-                        alert("El aparcamiento de la reserva es "+parking.nameParking+"\n " +
-                                "Para obtener todos los datos de la reserva así como al guiado, puede acceder a Mis Reservas para ver todas\n" +
+                        alert("El aparcamiento seleccionado es "+parking.nameParking+"\n " +
+                                "Para conocer más datos así como el guiado, puede acceder al apartado 'Mis Reservas'\n" +
                                 "Se informará de la plaza en la entrada del aparcamiento") {
                             title = "Información"
                             yesButton { loadFragment.loadFragment(2, bundle) }

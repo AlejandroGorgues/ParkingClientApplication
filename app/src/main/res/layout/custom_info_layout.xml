@@ -8,6 +8,7 @@
             android:id="@+id/info_window_imagen"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:paddingTop="30dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_drive_eta_black_24dp" />
 
@@ -17,7 +18,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:paddingStart="5dp"
             android:text="Parking" />
 
     <TextView
@@ -25,10 +25,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:textSize="20sp"
+            android:textSize="15sp"
             android:layout_below="@id/info_window_parking"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:paddingStart="5dp"
             android:text="Direccion" />
 
     <TextView
@@ -37,7 +36,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/info_window_direction"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:paddingStart="5dp"
             android:text="Estado: Activo" />
 
     <TextView
@@ -46,15 +44,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/info_window_state"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:paddingStart="5dp"
-            android:text="50/100" />
+            android:text="Ocupación: 50/100" />
 
     <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/info_window_coste"
             android:layout_below="@id/info_window_free"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:text="2€/h"/>
+            android:text="Precio: 2€/h"/>
 
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"

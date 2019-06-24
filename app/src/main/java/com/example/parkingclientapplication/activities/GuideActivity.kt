@@ -19,32 +19,25 @@ import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import kotlinx.android.synthetic.main.app_bar_guide.*
 import java.util.*
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.*
-import android.location.LocationManager
 import android.os.Build
 import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v7.app.AlertDialog
-import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.*
 import com.example.parkingclientapplication.AzureClient
-import com.example.parkingclientapplication.model.Driver
-import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.ParkingLot
 import com.example.parkingclientapplication.model.Reservation
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
 import kotlinx.android.synthetic.main.content_client_guide.*
 import okhttp3.OkHttpClient
+import org.jetbrains.anko.custom.onUiThread
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import java.io.UnsupportedEncodingException
 import java.net.MalformedURLException
-import java.net.URLEncoder
-import java.nio.ByteBuffer
 import kotlin.collections.ArrayList
 
 
@@ -87,6 +80,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     private lateinit var canvas: Canvas
     private lateinit var initialLotS: String
     private lateinit var finalLotS: String
+    private lateinit var bitmap: Bitmap
     private var finalRectangle = ""
     private val parkingRectangles:HashMap<String, RectF> = HashMap()
     private var cornersRadius = 0
@@ -170,9 +164,11 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
 
                 for(parkingLot in resultParkingLotQuery){
                     finalLotS = parkingLot.position!!
-                    runOnUiThread {
-                        loadParking()
-                        obtainParkingLot()
+
+                    obtainParkingLot()
+                    /*uiThread  {
+                        //loadParking()
+
                         /*calculateStart("RRRD")
                         finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
 
@@ -193,7 +189,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                             )
                             parkingRectangles.replace(finalRectangle, rectAux)
                         }*/
-                    }
+                    }*/
                 }
 
 
@@ -494,44 +490,52 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         when (characteristic.uuid) {
             UUID.fromString("69d9fdd7-54fa-4987-aa3f-43b5f4cabcbf") -> {
                 Log.e("aqui", String(characteristic.value))
-
-                calculateStart(String(characteristic.value))
-                finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
-
-                if(parkingRectangles.containsKey(finalRectangle)){
-
-                    val rectAux = RectF(
-                        parkingRectangles[finalRectangle]!!.left , // left
-                        parkingRectangles[finalRectangle]!!.top , // top
-                        parkingRectangles[finalRectangle]!!.right , // right
-                        parkingRectangles[finalRectangle]!!.bottom  // bottom
+                val screenSize = getScreenSizePixels()
+                runOnUiThread {
+                    bitmap = Bitmap.createBitmap(
+                        screenSize[0], // Width
+                        screenSize[1], // Height
+                        Bitmap.Config.ARGB_8888 // Config
                     )
 
-                    canvas.drawRoundRect(
-                        rectAux, // rect
-                        cornersRadius.toFloat(), // rx
-                        cornersRadius.toFloat(), // ry
-                        paintLotsS // Paint
-                    )
-                    parkingRectangles.replace(finalRectangle, rectAux)
+                    // Initialize a new Canvas instance
+                    canvas = Canvas(bitmap)
+                    loadParking()
+                    calculateStart(String(characteristic.value))
+                    finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
+
+                    if(parkingRectangles.containsKey(finalRectangle)){
+
+                        val rectAux = RectF(
+                            parkingRectangles[finalRectangle]!!.left , // left
+                            parkingRectangles[finalRectangle]!!.top , // top
+                            parkingRectangles[finalRectangle]!!.right , // right
+                            parkingRectangles[finalRectangle]!!.bottom  // bottom
+                        )
+
+                        canvas.drawRoundRect(
+                            rectAux, // rect
+                            cornersRadius.toFloat(), // rx
+                            cornersRadius.toFloat(), // ry
+                            paintLotsS // Paint
+                        )
+                        parkingRectangles.replace(finalRectangle, rectAux)
+
+
+                    }
+                    testing.setImageBitmap(bitmap)
                 }
+
+
+
+
 
             }
         }
     }
 
     private fun loadParking(){
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
 
-        val bitmap = Bitmap.createBitmap(
-            displayMetrics.widthPixels, // Width
-            displayMetrics.heightPixels, // Height
-            Bitmap.Config.ARGB_8888 // Config
-        )
-
-        // Initialize a new Canvas instance
-        canvas = Canvas(bitmap)
 
 
         // Draw a solid color on the canvas as background
@@ -735,13 +739,31 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         }
 
         // Display the newly created bitmap on app interface
-        testing.setImageBitmap(bitmap)
+
+    }
+
+    private fun getScreenSizePixels(): IntArray {
+        val resources = resources
+        val config = resources.configuration
+        val dm = resources.displayMetrics
+        val widthHeightInPixels = IntArray(2)
+        // Note, screenHeightDp isn't reliable
+        // (it seems to be too small by the height of the status bar),
+        // but we assume screenWidthDp is reliable.
+        // Note also, dm.widthPixels,dm.heightPixels aren't reliably pixels
+        // (they get confused when in screen compatibility mode, it seems),
+        // but we assume their ratio is correct.
+        val screenWidthInPixels = config.screenWidthDp.toDouble() * dm.density
+        val screenHeightInPixels = screenWidthInPixels * dm.heightPixels / dm.widthPixels
+        widthHeightInPixels[0] = (screenWidthInPixels + .5).toInt()
+        widthHeightInPixels[1] = (screenHeightInPixels + .5).toInt()
+        return widthHeightInPixels
     }
 
     private fun fillArrow(x0: Float, y0: Float, x1: Float, y1: Float, arrowHeadAngle: Int) {
 
 
-        val arrowHeadLenght = 50
+        val arrowHeadLenght = 25
         // arrowHeadAngle = 45
         val linePts = floatArrayOf(x1 - arrowHeadLenght, y1, x1, y1)
         val linePts2 = floatArrayOf(x1, y1, x1, y1 + arrowHeadLenght)
@@ -768,33 +790,62 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         //Empieza dibujar las lineas
         val firstNumber = initialLotS[0].toString().toInt()
         val secondNumber = initialLotS[2].toString().toInt()
+        val firstNumberF = finalLotS[0].toString().toInt()
+        val secondNumberF = finalLotS[2].toString().toInt()
 
         if(firstNumber == 1 || firstNumber == 4){
             //Si empieza por el oeste sino, empieza por el este
             if(firstNumber == 1){
                 orientation = "W"
-                x1 = 50f
-                y1 = 1000f
-                canvas.drawText("Se encuentra aqui", x1 - 50, y1 - 100, paintText)
+                if(secondNumberF > 2){
+                    x1 = 25f
+                    y1 = 800f
+                    canvas.drawText("Está aqui", x1, y1 + 50, paintText)
+                }else{
+                    x1 = 25f
+                    y1 = 1200f
+                    canvas.drawText("Está aqui", x1, y1 - 50, paintText)
+                }
+
             }else if(firstNumber == 4){
                 orientation = "E"
-                x1 = 1000f
-                y1 = 1000f
-                canvas.drawText("Se encuentra aqui", x1 +50, y1 - 100, paintText)
+                if(secondNumberF > 2){
+                    x1 = 1025f
+                    y1 = 800f
+                    canvas.drawText("Está aqui", x1 - 200, y1 + 50, paintText)
+                }else{
+                    x1 = 1025f
+                    y1 = 1200f
+                    canvas.drawText("Está aqui", x1 - 200, y1 - 50, paintText)
+                }
+
             }
 
         }else if(secondNumber == 1 || secondNumber == 4){
             //Si empieza por el sur, sino, empieza por el norte
             if (secondNumber == 1){
                 orientation = "S"
-                x1 = 500f
-                y1 = 1500f
-                canvas.drawText("Se encuentra aqui", x1 - 150, y1 + 100, paintText)
+                if(firstNumberF > 2){
+                    x1 = 600f
+                    y1 = 1550f
+                    canvas.drawText("Está aqui", x1 - 150, y1 + 100, paintText)
+                }else{
+                    x1 = 450f
+                    y1 = 1550f
+                    canvas.drawText("Está aqui", x1 - 150, y1 + 100, paintText)
+                }
+
             }else if (secondNumber == 4){
                 orientation = "N"
-                x1 = 500f
-                y1 = 400f
-                canvas.drawText("Se encuentra aqui", x1 - 150, y1 - 100, paintText)
+                if(firstNumberF > 2){
+                    x1 = 600f
+                    y1 = 475f
+                    canvas.drawText("Está aqui", x1 - 150, y1 - 100, paintText)
+                }else{
+                    x1 = 450f
+                    y1 = 475f
+                    canvas.drawText("Está aqui", x1 - 150, y1 - 100, paintText)
+                }
             }
 
         }
@@ -804,10 +855,10 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     }
 
     private fun drawLine(x: Float, y: Float, orientation: String, letters: String){
-        val offsetH = 375f //100 en 100
-        val offsetV = 300f //50 en 50
-        val offsetHE = 250f
-        val offsetVE = 650f
+        val offsetH = 400f //100 en 100
+        val offsetV = 325f //50 en 50
+        val offsetHE = 200f
+        val offsetVE = 450f
 
         var x1 = x
         var y1 = y
@@ -819,183 +870,176 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         for( i in 0 until letters.length){
 
             letter = letters[i].toString()
+            if(letter != "P"){
+                when (orientation) {
+                    "W" -> {
+                        when (letter) {
+                            "R" -> {
 
-            when (orientation) {
-                "W" -> {
-                    when (letter) {
-                        "R" -> {
+                                x1 += if(limit(i1, i2, i1 +1, i2, orientation)) {
+                                    canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
+                                    fillArrow(x1 + offsetHE, y1, x1, y1, 225)
+                                    offsetHE
+                                } else {
+                                    canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
+                                    fillArrow(x1 + offsetH, y1, x1, y1, 225)
+                                    offsetH
+                                }
+                                i1 += 1
 
-                            x1 += if(limit(i1, i2, i1 +1, i2, orientation)) {
-                                canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
-                                fillArrow(x1 + offsetHE, y1, x1, y1, 225)
-
-                                offsetHE
-                            } else {
-                                canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
-                                fillArrow(x1 + offsetH, y1, x1, y1, 225)
-                                offsetH
                             }
-                            i1 += 1
+                            "D" -> {
+                                y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
+                                    canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
+                                    fillArrow(x1, y1 + offsetVE, x1, y1, 225)
+                                    offsetVE
+                                }else{
+                                    canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
+                                    fillArrow(x1, y1 + offsetV, x1, y1, 225)
+                                    offsetV
+                                }
 
-                        }
-                        "D" -> {
-                            y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
-                                canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
-                                fillArrow(x1, y1 + offsetVE, x1, y1, 225)
-
-                                offsetVE
-                            }else{
-                                canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
-                                fillArrow(x1, y1 + offsetV, x1, y1, 225)
-                                offsetV
+                                i2 -= 1
                             }
-
-                            i2 -= 1
-                        }
-                        else -> {
-                            y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
-                                canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
-                                fillArrow(x1, y1 - offsetVE, x1, y1, 225)
-
-                                offsetVE
-                            }else{
-                                canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
-                                fillArrow(x1, y1 - offsetV, x1, y1, 225)
-                                offsetV
+                            else -> {
+                                y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
+                                    canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
+                                    fillArrow(x1, y1 - offsetVE, x1, y1, 225)
+                                    offsetVE
+                                }else{
+                                    canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
+                                    fillArrow(x1, y1 - offsetV, x1, y1, 225)
+                                    offsetV
+                                }
+                                i2 +=1
                             }
-                            i2 +=1
                         }
                     }
-                }
-                "E" -> {
-                    when (letter) {
-                        "R" -> {
-
-                            x1 -= if(limit(i1, i2,i1 -1, i2, orientation)) {
-                                canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
-                                fillArrow(x1 - offsetHE, y1, x1, y1, 225)
-
-                                offsetHE
-                            } else {
-                                canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
-                                fillArrow(x1 - offsetH, y1, x1, y1, 225)
-                                offsetH
+                    "E" -> {
+                        when (letter) {
+                            "R" -> {
+                                Log.e("aqui", "recto")
+                                x1 -= if(limit(i1, i2,i1 -1, i2, orientation)) {
+                                    canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
+                                    fillArrow(x1 - offsetHE, y1, x1, y1, 225)
+                                    offsetHE
+                                } else {
+                                    canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
+                                    fillArrow(x1 - offsetH, y1, x1, y1, 225)
+                                    offsetH
+                                }
+                                i1 -=1
                             }
-                            i1 -=1
-                        }
-                        "D" -> {
-                            y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
-                                canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
-                                fillArrow(x1, y1 - offsetVE, x1, y1, 225)
-
-                                offsetVE
-                            }else{
-                                canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
-                                fillArrow(x1, y1 - offsetV, x1, y1, 225)
-                                offsetV
+                            "D" -> {
+                                y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
+                                    canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
+                                    fillArrow(x1, y1 - offsetVE, x1, y1, 225)
+                                    offsetVE
+                                }else{
+                                    canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
+                                    fillArrow(x1, y1 - offsetV, x1, y1, 225)
+                                    offsetV
+                                }
+                                i2 +=1
                             }
-                            i2 +=1
-                        }
-                        else -> {
-                            y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
-                                canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
-                                fillArrow(x1, y1 + offsetVE, x1, y1, 225)
-
-                                offsetVE
-                            }else{
-                                canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
-                                fillArrow(x1, y1 + offsetV, x1, y1, 225)
-                                offsetV
+                            else -> {
+                                y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
+                                    canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
+                                    fillArrow(x1, y1 + offsetVE, x1, y1, 225)
+                                    offsetVE
+                                }else{
+                                    canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
+                                    fillArrow(x1, y1 + offsetV, x1, y1, 225)
+                                    offsetV
+                                }
+                                i2 -=1
                             }
-                            i2 -=1
                         }
                     }
-                }
-                "S" -> {
-                    when (letter) {
-                        "R" -> {
-                            y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
-                                canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
-                                fillArrow(x1, y1 - offsetVE, x1, y1, 225)
-
-                                offsetVE
-                            }else{
-                                canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
-                                fillArrow(x1, y1 - offsetV, x1, y1, 225)
-                                offsetV
+                    "S" -> {
+                        when (letter) {
+                            "R" -> {
+                                y1 -= if(limit(i1, i2, i1, i2 + 1, orientation)){
+                                    canvas.drawLine(x1, y1, x1, y1 - offsetVE, paintPath)
+                                    fillArrow(x1, y1 - offsetVE, x1, y1, 225)
+                                    offsetVE
+                                }else{
+                                    canvas.drawLine(x1, y1, x1, y1 - offsetV, paintPath)
+                                    fillArrow(x1, y1 - offsetV, x1, y1, 225)
+                                    offsetV
+                                }
+                                i2 +=1
                             }
-                            i2 +=1
-                        }
-                        "D" -> {
-                            x1 += if(limit(i1, i2, i1 +1 , i2, orientation)) {
-                                canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
-                                fillArrow(x1 + offsetHE, y1, x1, y1, 225)
-
-                                offsetHE
-                            } else {
-                                canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
-                                fillArrow(x1 + offsetH, y1, x1, y1, 225)
-                                offsetH
+                            "D" -> {
+                                x1 += if(limit(i1, i2, i1 +1 , i2, orientation)) {
+                                    canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
+                                    fillArrow(x1 + offsetHE, y1, x1, y1, 225)
+                                    offsetHE
+                                } else {
+                                    canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
+                                    fillArrow(x1 + offsetH, y1, x1, y1, 225)
+                                    offsetH
+                                }
+                                i1 +=1
                             }
-                            i1 +=1
-                        }
-                        else -> {
-                            x1 -= if(limit(i1, i2, i1 - 1, i2, orientation)) {
-                                canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
-                                fillArrow(x1 - offsetHE, y1, x1, y1, 225)
-
-                                offsetHE
-                            } else {
-                                canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
-                                fillArrow(x1 - offsetH, y1, x1, y1, 225)
-                                offsetH
+                            else -> {
+                                x1 -= if(limit(i1, i2, i1 - 1, i2, orientation)) {
+                                    canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
+                                    fillArrow(x1 - offsetHE, y1, x1, y1, 225)
+                                    offsetHE
+                                } else {
+                                    canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
+                                    fillArrow(x1 - offsetH, y1, x1, y1, 225)
+                                    offsetH
+                                }
+                                i1 -=1
                             }
-                            i1 -=1
                         }
                     }
-                }
-                else -> {
-                    when (letter) {
-                        "R" -> {
-                            y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
-                                canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
-                                fillArrow(x1, y1 + offsetVE, x1, y1, 225)
-                                offsetVE
-                            }else{
-                                canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
-                                fillArrow(x1, y1 + offsetV, x1, y1, 225)
-                                offsetV
+                    else -> {
+                        when (letter) {
+                            "R" -> {
+                                y1 += if(limit(i1, i2, i1, i2 - 1, orientation)){
+                                    canvas.drawLine(x1, y1, x1, y1 + offsetVE, paintPath)
+                                    fillArrow(x, y1 +  offsetVE, x1, y1, 225)
+                                    offsetVE
+                                }else{
+                                    canvas.drawLine(x1, y1, x1, y1 + offsetV, paintPath)
+                                    fillArrow(x1, y1 +  offsetVE, x1, y1, 225)
+                                    offsetV
+                                }
+                                i2 -=1
                             }
-                            i2 -=1
-                        }
-                        "D" -> {
-                            x1 -= if(limit(i1, i2,  i1 -1, i2, orientation)) {
-                                canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
-                                fillArrow(x1 - offsetHE, y1 , x1, y1, 225)
-                                offsetHE
-                            } else {
-                                canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
-                                fillArrow(x1 - offsetH, y1 , x1, y1, 225)
-                                offsetH
+                            "D" -> {
+                                x1 -= if(limit(i1, i2,  i1 -1, i2, orientation)) {
+                                    canvas.drawLine(x1, y1, x1 - offsetHE, y1, paintPath)
+                                    fillArrow(x1 - offsetHE, y1, x1, y1, 225)
+                                    offsetHE
+                                } else {
+                                    canvas.drawLine(x1, y1, x1 - offsetH, y1, paintPath)
+                                    fillArrow(x1 - offsetHE, y1, x1, y1, 225)
+                                    offsetH
+                                }
+                                i1 -=1
                             }
-                            i1 -=1
-                        }
-                        else -> {
-                            x1 += if(limit(i1, i2, i1 +1  , i2, orientation)) {
-                                canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
-                                fillArrow(x1 + offsetHE, y1 , x1, y1, 225)
-                                offsetHE
-                            } else {
-                                canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
-                                fillArrow(x1 + offsetH, y1 , x1, y1, 225)
-                                offsetH
+                            else -> {
+                                x1 += if(limit(i1, i2, i1 +1  , i2, orientation)) {
+                                    canvas.drawLine(x1, y1, x1 + offsetHE, y1, paintPath)
+                                    fillArrow(x1 + offsetHE, y1, x1, y1, 225)
+                                    offsetHE
+                                } else {
+                                    canvas.drawLine(x1, y1, x1 + offsetH, y1, paintPath)
+                                    fillArrow(x1 + offsetHE, y1, x1, y1, 225)
+                                    offsetH
+                                }
+                                i1 +=1
                             }
-                            i1 +=1
                         }
                     }
                 }
             }
         }
+
 
     }
 

@@ -18,19 +18,27 @@
                 android:layout_height="match_parent">
 
             <TextView
-                    android:id="@+id/reservation"
+                    android:id="@+id/reservation_parking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/reservation_date"
+                    android:layout_below="@+id/reservation_parking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:textStyle="bold"/>
 
-
-            <ImageButton
+            <TextView
+                    android:id="@+id/reservation_vehicle"
+                    android:layout_below="@+id/reservation_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:id="@+id/infoReservation"
-                    style="?android:attr/actionOverflowButtonStyle"/>
+                    android:layout_alignParentTop="true"
+                    android:textStyle="bold"/>
+
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

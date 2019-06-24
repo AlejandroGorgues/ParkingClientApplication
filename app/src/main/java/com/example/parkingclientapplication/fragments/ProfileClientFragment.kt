@@ -1,20 +1,14 @@
 package com.example.parkingclientapplication.fragments
 
-
-import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.view.*
-
 import com.example.parkingclientapplication.R
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
-import kotlinx.android.synthetic.main.fragment_profile_client.*
 import android.widget.ProgressBar
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
-import android.app.AlertDialog
-import android.support.design.widget.TextInputEditText
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.Button
@@ -24,7 +18,7 @@ import com.example.parkingclientapplication.model.Driver
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
-import kotlinx.coroutines.withContext
+import kotlinx.android.synthetic.main.fragment_profile_client.*
 import org.jetbrains.anko.uiThread
 import java.net.MalformedURLException
 
@@ -45,9 +39,6 @@ class ProfileClientFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var user: FirebaseUser
 
-
-    private val mProgressBar: ProgressBar? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -59,6 +50,7 @@ class ProfileClientFragment : Fragment() {
         edEmail = view.findViewById(R.id.edEmail)
         edName = view.findViewById(R.id.edName)
         bUpdate = view.findViewById(R.id.buttonUpdate)
+        profileProgressBar.visibility = View.VISIBLE
 
         try {
         // Create the client instance, using the provided mobile app URL.
@@ -83,6 +75,7 @@ class ProfileClientFragment : Fragment() {
                         edName.setText(driver.username)
                         edPassword.setText(driver.password)
                         edEmail.setText(driver.email)
+                        profileProgressBar.visibility = View.INVISIBLE
                     }
 
 
@@ -150,7 +143,7 @@ class ProfileClientFragment : Fragment() {
             })
 
         bUpdate.setOnClickListener {
-
+            profileProgressBar.visibility = View.VISIBLE
             driver.email = edEmail.text.toString()
             driver.password = edPassword.text.toString()
             driver.username = edName.text.toString()
@@ -172,6 +165,7 @@ class ProfileClientFragment : Fragment() {
                     }
                 }
                 driverTable!!.update(driver).get()
+                profileProgressBar.visibility = View.INVISIBLE
             }
         }
 
@@ -191,36 +185,5 @@ class ProfileClientFragment : Fragment() {
         }
 
     }
-
-
-    /*private class ProgressFilter : ServiceFilter {
-
-        override fun handleRequest(
-            request: ServiceFilterRequest,
-            nextServiceFilterCallback: NextServiceFilterCallback
-        ): ListenableFuture<ServiceFilterResponse> {
-
-            val resultFuture = SettableFuture.create<ServiceFilterResponse>()
-
-
-            activity.runOnUiThread { mProgressBar.visibility = ProgressBar.VISIBLE }
-
-            val future = nextServiceFilterCallback.onNext(request)
-
-            Futures.addCallback(future, object : FutureCallback<ServiceFilterResponse> {
-                override fun onFailure(e: Throwable) {
-                    resultFuture.setException(e)
-                }
-
-                override fun onSuccess(response: ServiceFilterResponse?) {
-                    activity.runOnUiThread(Runnable { mProgressBar.visibility = ProgressBar.GONE })
-
-                    resultFuture.set(response)
-                }
-            })
-
-            return resultFuture
-        }
-    }*/
 }
 

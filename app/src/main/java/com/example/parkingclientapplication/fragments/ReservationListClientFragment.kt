@@ -92,7 +92,7 @@ class ReservationListClientFragment : Fragment() {
             AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
 
-        reservAdapter = ReservationListAdapter(reservations, context!!)
+        reservAdapter = ReservationListAdapter(reservations)
         (reservAdapter as ReservationListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = reservRecyclerView.getChildAdapterPosition(v)
             val bundle = Bundle()

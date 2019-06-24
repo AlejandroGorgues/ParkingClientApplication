@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
+import kotlinx.android.synthetic.main.fragment_bank_profile.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -70,12 +71,15 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         bUpdateBankProfile.setOnClickListener {
             doAsync {
+                bankProgressBar.visibility = View.VISIBLE
                 bankProfileTable!!.update(bankP).get()
+                bankProgressBar.visibility = View.INVISIBLE
             }
         }
 
         bCreateBankProfile.setOnClickListener {
             doAsync {
+                bankProgressBar.visibility = View.VISIBLE
                 bankP!!.securityNumber = edSecurityNumber.text.toString()
                 bankP!!.dateCard = dateSpinner.selectedItem.toString()
                 bankP!!.numberCard = edNumberCard.text.toString()
@@ -84,6 +88,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 bankP!!.idDriver = driverF.id
 
                 bankProfileTable!!.insert(bankP).get()
+                bankProgressBar.visibility = View.INVISIBLE
             }
 
         }
@@ -154,6 +159,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             bankProfileTable = mClient!!.getTable(BankProfile::class.java)
             driverTable = mClient!!.getTable(Driver::class.java)
+            bankProgressBar.visibility = View.VISIBLE
             doAsync {
 
                 val resultDriverQuery =
@@ -174,6 +180,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 edNameCard.setText(bankProfile.nameCard)
                                 edSecurityNumber.setText(bankProfile.securityNumber)
                                 dateSpinner.setSelection(dateAdapter.getPosition(bankProfile.dateCard))
+                                bankProgressBar.visibility = View.INVISIBLE
 
                             }
 

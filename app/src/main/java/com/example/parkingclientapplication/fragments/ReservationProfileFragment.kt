@@ -73,12 +73,12 @@ class ReservationProfileFragment : Fragment() {
         reservation = arguments!!.getParcelable("reservation")!!
 
         edUserReserv.setText("")
-        edParkingReserv.setText(reservation.nameParking)
+        edParkingReserv.setText("")
         edTarjetaReserv.setText("")
-        edMatriculaReserv.setText(reservation.licensePlate)
-        edFechaReserv.setText(trimDate(reservation.dateReservation.toString()))
-        edEstadoReserv.setText(reservation.state)
-        edPrecioReserv.setText(reservation.expensesActive.toString())
+        edMatriculaReserv.setText("")
+        edFechaReserv.setText(trimDate(""))
+        edEstadoReserv.setText("")
+        edPrecioReserv.setText("")
 
         auth = FirebaseAuth.getInstance()
 
@@ -111,6 +111,11 @@ class ReservationProfileFragment : Fragment() {
                         runOnUiThread {
                             edUserReserv.setText(driverAux.username)
                             edTarjetaReserv.setText(bankProfileAux.numberCard)
+                            edParkingReserv.setText(reservation.nameParking)
+                            edMatriculaReserv.setText(reservation.licensePlate)
+                            edFechaReserv.setText(trimDate(reservation.dateReservation.toString()))
+                            edEstadoReserv.setText(reservation.state)
+                            edPrecioReserv.setText(reservation.expensesActive.toString())
                         }
                     }
 

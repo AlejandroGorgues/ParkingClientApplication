@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.example.parkingclientapplication.AzureClient
 
@@ -20,6 +21,7 @@ import com.example.parkingclientapplication.model.Driver
 import com.google.firebase.auth.FirebaseAuth
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
+import kotlinx.android.synthetic.main.fragment_register_client.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -29,7 +31,7 @@ import java.net.MalformedURLException
 class RegisterClientFragment : Fragment() {
 
     private lateinit var buttonAccess: Button
-    private lateinit var buttonLogin: Button
+    private lateinit var txtLogin: TextView
     private lateinit var auth: FirebaseAuth
 
     private lateinit var edUsernameRegister: EditText
@@ -51,7 +53,7 @@ class RegisterClientFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_register_client, container, false)
         auth = FirebaseAuth.getInstance()
         buttonAccess = view!!.findViewById(R.id.buttonAccess)
-        buttonLogin = view.findViewById(R.id.buttonLogin)
+        txtLogin = view.findViewById(R.id.txtLogin)
         edUsernameRegister = view.findViewById(R.id.edUsernameRegister)
         edPasswordRegister = view.findViewById(R.id.edPasswordRegister)
         edEmailRegister = view.findViewById(R.id.edEmailRegister)
@@ -64,6 +66,7 @@ class RegisterClientFragment : Fragment() {
         driver = Driver()
 
         buttonAccess.setOnClickListener {
+            registerProgressBar.visibility = View.VISIBLE
             auth.createUserWithEmailAndPassword(edEmailRegister.text.toString(), edPasswordRegister.text.toString())
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -71,6 +74,7 @@ class RegisterClientFragment : Fragment() {
                         //Log.d(TAG, "createUserWithEmail:success")
 
                         createDriver()
+                        registerProgressBar.visibility = View.GONE
                     } else {
                         // If sign in fails, display a message to the user.
                         //Log.w(TAG, "createUserWithEmail:failure", task.exception)
@@ -82,7 +86,7 @@ class RegisterClientFragment : Fragment() {
                 }
 
         }
-        buttonLogin.setOnClickListener {
+        txtLogin.setOnClickListener {
             val bundle = Bundle()
             loadFragments.loadFragment(2, bundle)
         }

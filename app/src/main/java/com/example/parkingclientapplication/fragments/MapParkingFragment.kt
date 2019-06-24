@@ -188,9 +188,9 @@ class MapParkingFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMyLocatio
 
                     (mContents!!.findViewById(R.id.info_window_parking) as TextView).text = selectedParking.nameParking
                     (mContents!!.findViewById(R.id.info_window_direction) as TextView).text = selectedParking.direction
-                    (mContents!!.findViewById(R.id.info_window_state) as TextView).text = estado
-                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = selectedParking.occupation.toString() + "/" + selectedParking.maxOccupation.toString()
-                    (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = selectedParking.price.toString() +"€/h"
+                    (mContents!!.findViewById(R.id.info_window_state) as TextView).text = "Estado: $estado"
+                    (mContents!!.findViewById(R.id.info_window_free) as TextView).text = "Ocupación: " + selectedParking.occupation.toString() + "/" + selectedParking.maxOccupation.toString()
+                    (mContents!!.findViewById(R.id.info_window_coste) as TextView).text = "Precio: " + selectedParking.price.toString() +"€/h"
                     maxOccupation = 0
                     occupation = 0
 
