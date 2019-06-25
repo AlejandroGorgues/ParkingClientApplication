@@ -31,6 +31,7 @@ class ProfileClientFragment : Fragment() {
     private lateinit var edEmail: EditText
     private lateinit var edName: EditText
     private lateinit var bUpdate: Button
+    private lateinit var prbProfile: ProgressBar
 
     private var driverTable: MobileServiceTable<Driver>? = null
     private lateinit var driver: Driver
@@ -50,7 +51,8 @@ class ProfileClientFragment : Fragment() {
         edEmail = view.findViewById(R.id.edEmail)
         edName = view.findViewById(R.id.edName)
         bUpdate = view.findViewById(R.id.buttonUpdate)
-        profileProgressBar.visibility = View.VISIBLE
+        prbProfile = view.findViewById(R.id.profileProgressBar)
+        prbProfile.visibility = View.VISIBLE
 
         try {
         // Create the client instance, using the provided mobile app URL.
@@ -75,7 +77,7 @@ class ProfileClientFragment : Fragment() {
                         edName.setText(driver.username)
                         edPassword.setText(driver.password)
                         edEmail.setText(driver.email)
-                        profileProgressBar.visibility = View.INVISIBLE
+                        prbProfile.visibility = View.INVISIBLE
                     }
 
 

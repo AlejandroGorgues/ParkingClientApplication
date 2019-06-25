@@ -6,6 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.example.parkingclientapplication.model.Reservation
+import java.text.DateFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ReservationListAdapter(private var reservations : ArrayList<Reservation>) : RecyclerView.Adapter<ReservationViewHolder>(), View.OnClickListener {
 
@@ -49,12 +54,21 @@ class ReservationViewHolder (viewRes: View ) : RecyclerView.ViewHolder(viewRes) 
 
 
     fun bindReservation(reservation: Reservation) {
-
-
         parking.text = "Nombre del parking: " + reservation.nameParking
-        date.text = "Fecha de reserva: " + reservation.dateReservation
+        date.text = "Fecha de reserva: " + trimDate(reservation.dateReservation!!)
         vehicle.text = "Matrícula del vehículo: " + reservation.licensePlate
 
+    }
+
+    private fun trimDate(dateString:String): String{
+        val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.UK)
+        var dateReservation: Date? = null
+        try {
+            dateReservation = df.parse(dateString)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+        return DateFormat.getInstance().format(dateReservation)
     }
 
 }

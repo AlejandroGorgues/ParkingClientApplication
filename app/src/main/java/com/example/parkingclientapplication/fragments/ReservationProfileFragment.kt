@@ -76,7 +76,7 @@ class ReservationProfileFragment : Fragment() {
         edParkingReserv.setText("")
         edTarjetaReserv.setText("")
         edMatriculaReserv.setText("")
-        edFechaReserv.setText(trimDate(""))
+        edFechaReserv.setText("")
         edEstadoReserv.setText("")
         edPrecioReserv.setText("")
 

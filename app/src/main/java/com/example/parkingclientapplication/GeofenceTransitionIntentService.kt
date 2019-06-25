@@ -28,12 +28,6 @@ class GeofenceTransitionIntentService : IntentService("intentS") {
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
 
-            // Get the geofences that were triggered. A single event can trigger
-            // multiple geofences.
-            val triggeringGeofences = geofencingEvent.triggeringGeofences
-
-
-
             // Send notification and log the transition details.
             loadGuideActivity(intent!!.getBundleExtra("reservationSelected")!!.getParcelable("reservation")!!)
 

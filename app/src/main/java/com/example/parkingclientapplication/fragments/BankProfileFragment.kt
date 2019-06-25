@@ -28,6 +28,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var bUpdateBankProfile: Button
     private lateinit var bCreateBankProfile: Button
     private lateinit var bDeleteBankProfile: Button
+    private lateinit var prbBank: ProgressBar
 
     private lateinit var edNumberCard: EditText
     private lateinit var edNameCard: EditText
@@ -57,6 +58,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
         edNumberCard = view.findViewById(R.id.edNumberCard)
         edNameCard = view.findViewById(R.id.edNameCard)
         edSecurityNumber = view.findViewById(R.id.edSecurityNumber)
+        prbBank = view.findViewById(R.id.bankProgressBar)
 
         auth = FirebaseAuth.getInstance()
         driverF = Driver()
@@ -71,15 +73,15 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         bUpdateBankProfile.setOnClickListener {
             doAsync {
-                bankProgressBar.visibility = View.VISIBLE
+                prbBank.visibility = View.VISIBLE
                 bankProfileTable!!.update(bankP).get()
-                bankProgressBar.visibility = View.INVISIBLE
+                prbBank.visibility = View.INVISIBLE
             }
         }
 
         bCreateBankProfile.setOnClickListener {
             doAsync {
-                bankProgressBar.visibility = View.VISIBLE
+                prbBank.visibility = View.VISIBLE
                 bankP!!.securityNumber = edSecurityNumber.text.toString()
                 bankP!!.dateCard = dateSpinner.selectedItem.toString()
                 bankP!!.numberCard = edNumberCard.text.toString()
@@ -88,7 +90,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 bankP!!.idDriver = driverF.id
 
                 bankProfileTable!!.insert(bankP).get()
-                bankProgressBar.visibility = View.INVISIBLE
+                prbBank.visibility = View.INVISIBLE
             }
 
         }
@@ -159,7 +161,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             bankProfileTable = mClient!!.getTable(BankProfile::class.java)
             driverTable = mClient!!.getTable(Driver::class.java)
-            bankProgressBar.visibility = View.VISIBLE
+            prbBank.visibility = View.VISIBLE
             doAsync {
 
                 val resultDriverQuery =
@@ -180,7 +182,7 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
                                 edNameCard.setText(bankProfile.nameCard)
                                 edSecurityNumber.setText(bankProfile.securityNumber)
                                 dateSpinner.setSelection(dateAdapter.getPosition(bankProfile.dateCard))
-                                bankProgressBar.visibility = View.INVISIBLE
+                                prbBank.visibility = View.INVISIBLE
 
                             }
 

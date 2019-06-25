@@ -11,17 +11,10 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.example.parkingclientapplication.R
-import com.example.parkingclientapplication.VehicleListAdapter
-import android.content.Intent
-import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.NavigationView
-import android.text.Layout
-import android.widget.ImageButton
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.VehicleSelectionAdapter
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.model.Driver
-import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.Vehicle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -83,7 +76,7 @@ class VehicleSelectionFragment : Fragment() {
         } catch (e: java.lang.Exception){
             AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
-        vehAdapter = VehicleSelectionAdapter(vehicles, context!!)
+        vehAdapter = VehicleSelectionAdapter(vehicles)
         (vehAdapter as VehicleSelectionAdapter).setOnClickListener(View.OnClickListener { v ->
             val bundle = Bundle()
             val opt = vehRecyclerView.getChildAdapterPosition(v)

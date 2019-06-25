@@ -26,6 +26,7 @@ import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.View
 import android.widget.*
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.model.ParkingLot
@@ -81,6 +82,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
     private lateinit var initialLotS: String
     private lateinit var finalLotS: String
     private lateinit var bitmap: Bitmap
+
+    private lateinit var prbGuide: ProgressBar
     private var finalRectangle = ""
     private val parkingRectangles:HashMap<String, RectF> = HashMap()
     private var cornersRadius = 0
@@ -94,6 +97,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
         handler = Handler()
+
+        prbGuide = findViewById(R.id.guideProgressBar)
 
         devicesResult = ArrayList()
         parkingLots = ArrayList()
@@ -165,31 +170,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                 for(parkingLot in resultParkingLotQuery){
                     finalLotS = parkingLot.position!!
 
+                    prbGuide.visibility = View.VISIBLE
                     obtainParkingLot()
-                    /*uiThread  {
-                        //loadParking()
-
-                        /*calculateStart("RRRD")
-                        finalRectangle = "rect" + finalLotS[0].toString().toInt() + ""+ finalLotS[2].toString().toInt()
-
-                        if(parkingRectangles.containsKey(finalRectangle)){
-
-                            val rectAux = RectF(
-                                parkingRectangles[finalRectangle]!!.left , // left
-                                parkingRectangles[finalRectangle]!!.top , // top
-                                parkingRectangles[finalRectangle]!!.right , // right
-                                parkingRectangles[finalRectangle]!!.bottom  // bottom
-                            )
-
-                            canvas.drawRoundRect(
-                                rectAux, // rect
-                                cornersRadius.toFloat(), // rx
-                                cornersRadius.toFloat(), // ry
-                                paintLotsS // Paint
-                            )
-                            parkingRectangles.replace(finalRectangle, rectAux)
-                        }*/
-                    }*/
                 }
 
 
@@ -373,9 +355,9 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
           }
         }
         val btDevice = devicesResult!!.filter { it.device.address ==  "B8:27:EB:D2:A6:DE"}
-        Log.e("aqui", closestDeviceName)
+        //Log.e("DeviceClosest", closestDeviceName)
         initialLotS = closestDeviceName
-        Log.e("aqui", btDevice.toString())
+        //Log.e("Device", btDevice.toString())
         connectToDevice(btDevice[0].device)
     }
 
@@ -523,6 +505,7 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
 
 
                     }
+                    prbGuide.visibility = View.GONE
                     testing.setImageBitmap(bitmap)
                 }
 

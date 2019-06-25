@@ -79,7 +79,7 @@ class VehicleListFragment : Fragment(), UpdateVehicleList {
             AzureClient.getInstance(context!!).createAndShowDialog(e, "Error")
         }
 
-        vehAdapter = VehicleListAdapter(vehicles, context!!, vehicleTable!!, this)
+        vehAdapter = VehicleListAdapter(vehicles, this)
         (vehAdapter as VehicleListAdapter).setOnClickListener(View.OnClickListener { v ->
             val opt = vehRecyclerView.getChildAdapterPosition(v)
             val bundle = Bundle()

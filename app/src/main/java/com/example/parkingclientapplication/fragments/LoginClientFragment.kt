@@ -2,9 +2,6 @@ package com.example.parkingclientapplication.fragments
 
 
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -18,8 +15,6 @@ import android.widget.Toast
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.activities.ClientMapActivity
 import com.example.parkingclientapplication.interfaces.LoadFragments
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.android.synthetic.main.fragment_login.*

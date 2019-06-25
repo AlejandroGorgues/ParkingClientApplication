@@ -13,8 +13,10 @@ import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.model.Vehicle
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
+import kotlinx.android.synthetic.main.fragment_vehicle_modified.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import java.net.MalformedURLException
 
 class VehicleModifiedFragment : Fragment() {
@@ -23,6 +25,7 @@ class VehicleModifiedFragment : Fragment() {
     private lateinit var edMarcaVehiculo: EditText
     private lateinit var edModeloVehiculo: EditText
     private lateinit var edMatriculaVehiculo: EditText
+
 
     private lateinit var bModifiedVehiculo: Button
 
@@ -57,6 +60,7 @@ class VehicleModifiedFragment : Fragment() {
                 vehicle.brand = edMarcaVehiculo.text.toString()
                 vehicle.model = edModeloVehiculo.text.toString()
                 vehicle.licensePlate = edMatriculaVehiculo.text.toString()
+                vehicleModProgressBar.visibility = View.VISIBLE
                 // Create the client instance, using the provided mobile app URL.
                 mClient = AzureClient.getInstance(context!!).getClient()
 
@@ -73,6 +77,9 @@ class VehicleModifiedFragment : Fragment() {
 
                 doAsync {
                     vehicleTable!!.update(vehicle)
+                    uiThread {
+                        vehicleModProgressBar.visibility = View.GONE
+                    }
                 }
 
             } catch (e: MalformedURLException) {

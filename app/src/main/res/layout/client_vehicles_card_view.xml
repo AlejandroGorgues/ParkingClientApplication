@@ -14,14 +14,28 @@
             card_view:contentPadding="10dp">
 
         <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
             <TextView
-                    android:id="@+id/vehicleManager"
+                    android:id="@+id/vehicleLicensePlate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:id="@+id/vehicleBrand"
+                    android:layout_below="@+id/vehicleLicensePlate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:id="@+id/vehicleModel"
+                    android:layout_below="@+id/vehicleBrand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textStyle="bold"/>
 
 
