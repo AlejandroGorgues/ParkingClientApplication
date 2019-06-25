@@ -170,7 +170,8 @@ class GuideActivity : AppCompatActivity(), LoadFragments, ActivityCompat.OnReque
                 for(parkingLot in resultParkingLotQuery){
                     finalLotS = parkingLot.position!!
 
-                    prbGuide.visibility = View.VISIBLE
+                    uiThread { prbGuide.visibility = View.VISIBLE }
+
                     obtainParkingLot()
                 }
 

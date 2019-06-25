@@ -10,6 +10,7 @@ import android.widget.*
 import com.example.parkingclientapplication.AzureClient
 
 import com.example.parkingclientapplication.R
+import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.model.Driver
 import com.example.parkingclientapplication.model.Vehicle
 import com.google.firebase.auth.FirebaseAuth
@@ -36,6 +37,8 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var vehicleTable: MobileServiceTable<Vehicle>? = null
     private var driverTable: MobileServiceTable<Driver>? = null
 
+    private lateinit var loadFragment: LoadFragments
+
 
     private lateinit var driver: Driver
     private lateinit var auth: FirebaseAuth
@@ -49,6 +52,7 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         driver = Driver()
 
+        loadFragment = activity as LoadFragments
         vehSpinner = view.findViewById(R.id.spinnerVehicle)
         edMarcaAdd = view.findViewById(R.id.edMarcaAdd)
         edModeloAdd = view.findViewById(R.id.edModeloAdd)
@@ -91,12 +95,14 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 driverTable = mClient!!.getTable(Driver::class.java)
 
                 doAsync {
+                    val bundle = Bundle()
                     val resultDriverQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
                     for (driver in resultDriverQuery) {
                         vehicle.idDriver = driver.id
                         vehicleTable!!.insert(vehicle)
                         break
                     }
+                    loadFragment.loadFragment(8, bundle)
 
                 }
 

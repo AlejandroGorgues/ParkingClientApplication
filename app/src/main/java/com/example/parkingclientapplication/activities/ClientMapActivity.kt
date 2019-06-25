@@ -148,6 +148,9 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 intent.putExtra("parkingSelected", bundle)
                 startActivity(intent)
             }
+            8 -> supportFragmentManager.inTransaction {
+                replace(R.id.content_data_client, VehicleListFragment())
+            }
         }
     }
 
