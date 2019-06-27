@@ -8,6 +8,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:showIn="@layout/app_bar_guide"
         android:id="@+id/content_guide"
+        android:background="@color/backgroundFinalSecondary"
         tools:context=".activities.GuideActivity">
 
 

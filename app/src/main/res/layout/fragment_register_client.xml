@@ -9,6 +9,7 @@
               android:paddingTop="56dp"
               android:paddingLeft="24dp"
               android:paddingRight="24dp"
+              android:background="@color/backgroundFinal"
               tools:context=".fragments.LoginClientFragment">
 
     <android.support.design.widget.TextInputLayout

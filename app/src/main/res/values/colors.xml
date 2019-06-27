@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#549bff</color>
+    <color name="colorPrimaryDark">#6254ff</color>
+    <color name="colorAccent">#ff6254</color>
     <color name="blueButton">#2196F3</color>
     <color name="whiteText">#FFFFFF</color>
     <color name="greenToolbar">#8BC34A</color>
@@ -17,4 +17,6 @@
     <color name="black_15">#26000000</color>
     <color name="white">#FFFFFF</color>
 
+    <color name="backgroundFinal">#b1eac6</color>
+    <color name="backgroundFinalSecondary">#b1b9ea</color>
 </resources>

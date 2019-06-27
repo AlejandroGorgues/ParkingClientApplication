@@ -2,12 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content" xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:paddingTop="56dp"
               android:paddingLeft="24dp"
               android:paddingRight="24dp"
-              android:layout_gravity="center"
+              android:gravity="center"
+              android:background="@color/backgroundFinal"
               tools:context=".fragments.BankProfileFragment">
 
     <TextView
@@ -31,7 +32,7 @@
     </android.support.design.widget.TextInputLayout>
 
     <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
+                  android:layout_height="wrap_content"
                   android:layout_gravity="center"
                   android:orientation="horizontal">
         <LinearLayout android:layout_width="wrap_content"
@@ -83,7 +84,6 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
             android:text="Nombre asociado a la tarjeta"/>
 
@@ -100,28 +100,29 @@
     </android.support.design.widget.TextInputLayout>
 
     <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
+                  android:layout_height="wrap_content"
                   android:layout_gravity="center"
                   android:orientation="horizontal">
 
 
-        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
-    <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/bUpdateBankProfile"
-            android:textColor="@color/whiteText"
-            app:backgroundTint="@color/blueButton"
-            android:visibility="invisible"
-            android:text="Guardar Cambios"/>
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="wrap_content">
+            <Button android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:id="@+id/bUpdateBankProfile"
+                    android:textColor="@color/whiteText"
+                    app:backgroundTint="@color/blueButton"
+                    android:visibility="invisible"
+                    android:text="Guardar Cambios"/>
 
-    <Button android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/bCreateBankProfile"
-            android:textColor="@color/whiteText"
-            app:backgroundTint="@color/blueButton"
-            android:text="Asociar perfil"/>
+            <Button android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:id="@+id/bCreateBankProfile"
+                    android:textColor="@color/whiteText"
+                    app:backgroundTint="@color/blueButton"
+                    android:text="Asociar perfil"/>
         </FrameLayout>
 
     <Button android:layout_width="wrap_content"
