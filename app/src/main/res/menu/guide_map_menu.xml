@@ -8,6 +8,6 @@
             android:id="@+id/action_guide"
             android:orderInCategory="100"
             android:icon="@drawable/route"
-            android:title="Localizar"
+            android:title="@string/localizar"
             app:showAsAction="always" />
 </menu>

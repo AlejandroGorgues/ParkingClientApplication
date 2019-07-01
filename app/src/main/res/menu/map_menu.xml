@@ -9,13 +9,13 @@
             android:id="@+id/action_clear"
             android:orderInCategory="100"
             android:icon="@drawable/cleaner"
-            android:title="Limpiar"
-            app:showAsAction="always" />
+            android:title="@string/limpiar"
+            app:showAsAction="ifRoom" />
 
     <item
             android:id="@+id/action_location"
             android:orderInCategory="100"
             android:icon="@drawable/place"
-            android:title="Localizar"
+            android:title="@string/localizar"
             app:showAsAction="always" />
 </menu>

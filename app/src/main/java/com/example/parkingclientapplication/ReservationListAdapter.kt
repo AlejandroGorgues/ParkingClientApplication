@@ -54,9 +54,13 @@ class ReservationViewHolder (viewRes: View ) : RecyclerView.ViewHolder(viewRes) 
 
 
     fun bindReservation(reservation: Reservation) {
-        parking.text = "Nombre del parking: " + reservation.nameParking
-        date.text = "Fecha de reserva: " + trimDate(reservation.dateReservation!!)
-        vehicle.text = "Matrícula del vehículo: " + reservation.licensePlate
+        val parkingText = "Nombre del parking: " + reservation.nameParking
+        val dateText = "Fecha de reserva: " + trimDate(reservation.dateReservation!!)
+        val licensePlateText = "Matrícula del vehículo: " + reservation.licensePlate
+
+        parking.text = parkingText
+        date.text = dateText
+        vehicle.text = licensePlateText
 
     }
 

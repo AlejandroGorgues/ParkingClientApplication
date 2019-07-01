@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:text="Parking" />
+            android:text="@string/parking" />
 
     <TextView
             android:id="@+id/info_window_direction"
@@ -28,7 +28,7 @@
             android:textSize="15sp"
             android:layout_below="@id/info_window_parking"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:text="Direccion" />
+            android:text="@string/direccion" />
 
     <TextView
             android:id="@+id/info_window_state"
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/info_window_direction"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:text="Estado: Activo" />
+            android:text="@string/estado_activo" />
 
     <TextView
             android:id="@+id/info_window_free"
@@ -44,20 +44,20 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/info_window_state"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:text="Ocupación: 50/100" />
+            android:text="@string/ocupacion" />
 
     <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/info_window_coste"
             android:layout_below="@id/info_window_free"
             android:layout_toEndOf="@id/info_window_imagen"
-            android:text="Precio: 2€/h"/>
+            android:text="@string/precio"/>
 
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:id="@+id/info_window_reservation"
               android:layout_below="@id/info_window_coste"
               android:layout_toEndOf="@id/info_window_imagen"
-              android:text="Pulsa la ventana \n para reservar"/>
+              android:text="@string/reservaInfo"/>
 
 </RelativeLayout>

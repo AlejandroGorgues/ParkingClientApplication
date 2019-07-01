@@ -31,6 +31,7 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var edMarcaAdd: EditText
     private lateinit var edModeloAdd: EditText
     private lateinit var edMatriculaAdd: EditText
+    private lateinit var vehicleAddProgressBar: ProgressBar
 
     private var mClient: MobileServiceClient? = null
 
@@ -58,6 +59,8 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
         edModeloAdd = view.findViewById(R.id.edModeloAdd)
         edMatriculaAdd = view.findViewById(R.id.edMatriculaAdd)
 
+        vehicleAddProgressBar = view.findViewById(R.id.vehicleAddProgressBar)
+
         vehSpinner.onItemSelectedListener = this
 
         // Create an ArrayAdapter using a simple spinner layout and languages array
@@ -71,6 +74,8 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         continueB = view.findViewById(R.id.buttonContinue1)
         continueB.setOnClickListener {
+            //When client press the add button, create a vehicle object and insert it into the DDBB
+            vehicleAddProgressBar.visibility = View.VISIBLE
             vehicle.id = ""
             vehicle.brand = edMarcaAdd.text.toString()
             vehicle.model = edModeloAdd.text.toString()
@@ -100,6 +105,9 @@ class VehicleAddFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     for (driver in resultDriverQuery) {
                         vehicle.idDriver = driver.id
                         vehicleTable!!.insert(vehicle)
+                        uiThread {
+                            vehicleAddProgressBar.visibility = View.GONE
+                        }
                         break
                     }
                     loadFragment.loadFragment(8, bundle)

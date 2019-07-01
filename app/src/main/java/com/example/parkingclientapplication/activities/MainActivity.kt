@@ -1,8 +1,5 @@
 package com.example.parkingclientapplication.activities
 
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
-import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.example.parkingclientapplication.R

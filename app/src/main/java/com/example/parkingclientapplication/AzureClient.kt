@@ -5,38 +5,28 @@ import android.content.Context
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 
 class AzureClient(context: Context) {
-    private var contex: Context? = null
+    private var context: Context? = null
     init {
-        this.contex = context
+        this.context = context
     }
 
     fun getClient(): MobileServiceClient{
-        return MobileServiceClient("https://clientmobileparking.azurewebsites.net", contex)
+        return MobileServiceClient("https://clientmobileparking.azurewebsites.net", context)
     }
 
-    /**
+    /*
      * Creates a dialog and shows it
-     *
-     * @param exception
-     * The exception to show in the dialog
-     * @param title
-     * The dialog title
      */
     fun createAndShowDialog(exception: Exception, title: String) {
         var ex: Throwable = exception
         if (exception.cause != null) {
             ex = exception.cause!!
         }
-        ex.message?.let { createAndShowDialog(it, title, contex!!) }
+        ex.message?.let { createAndShowDialog(it, title, context!!) }
     }
 
-    /**
+    /*
      * Creates a dialog and shows it
-     *
-     * @param message
-     * The dialog message
-     * @param title
-     * The dialog title
      */
     private fun createAndShowDialog(message: String, title: String, context: Context) {
         val builder = AlertDialog.Builder(context)
@@ -45,6 +35,8 @@ class AzureClient(context: Context) {
         builder.setTitle(title)
         builder.create().show()
     }
+
+    //Create the singleton holder that expect to get an AzureClient
     companion object : SingletonHolder<AzureClient, Context>(::AzureClient)
 
 }

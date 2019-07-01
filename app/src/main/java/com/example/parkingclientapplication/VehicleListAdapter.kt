@@ -51,15 +51,19 @@ class ManagerVehViewHolder (viewVeh: View ) : RecyclerView.ViewHolder(viewVeh) {
 
 
     fun bindVehicles(vehicle: Vehicle, updateList: UpdateVehicleList) {
-
+        val licensePlateText = "Matrícula: " + vehicle.licensePlate
+        val brandText = "Marca: " + vehicle.brand
+        val modelText = "Modelo: " + vehicle.model
 
         delButton.setOnClickListener {
 
             updateList.updateList(vehicle)
         }
-        licensePlate.text = "Matrícula: " + vehicle.licensePlate
-        brand.text = "Marca: " + vehicle.brand
-        model.text = "Modelo: " + vehicle.model
+
+
+        licensePlate.text = licensePlateText
+        brand.text = brandText
+        model.text = modelText
 
     }
 

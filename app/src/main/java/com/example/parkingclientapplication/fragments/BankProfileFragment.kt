@@ -3,7 +3,6 @@ package com.example.parkingclientapplication.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.transition.Visibility
 import android.view.*
 import android.widget.*
 import com.example.parkingclientapplication.AzureClient
@@ -15,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
-import kotlinx.android.synthetic.main.fragment_bank_profile.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -102,25 +100,6 @@ class BankProfileFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         setHasOptionsMenu(true)
         return view
-    }
-
-
-
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-
-        inflater!!.inflate(R.menu.client_map, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-
     }
 
     override fun onItemSelected(arg0: AdapterView<*>, arg1: View, position: Int, id: Long) {

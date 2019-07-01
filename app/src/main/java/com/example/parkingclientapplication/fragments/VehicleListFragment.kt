@@ -9,18 +9,13 @@ import android.support.v7.widget.RecyclerView
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.VehicleListAdapter
-import android.content.Intent
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.NavigationView
-import android.text.Layout
 import android.util.Log
 import android.view.*
-import android.widget.ImageButton
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.interfaces.UpdateVehicleList
 import com.example.parkingclientapplication.model.Driver
-import com.example.parkingclientapplication.model.Reservation
 import com.example.parkingclientapplication.model.Vehicle
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -71,6 +66,7 @@ class VehicleListFragment : Fragment(), UpdateVehicleList {
                 client.writeTimeoutMillis()
                 client
             }
+            //Obtain all the vehicles related to the client
             obtainTable()
 
         } catch (e: MalformedURLException) {
@@ -90,9 +86,9 @@ class VehicleListFragment : Fragment(), UpdateVehicleList {
 
         })
 
-        val fab = view.findViewById(R.id.newVehicle) as FloatingActionButton
-        fab.setOnClickListener {
-            // Click action
+        val add = view.findViewById(R.id.newVehicle) as FloatingActionButton
+        add.setOnClickListener {
+            // Load the fragment to add a car
             val bundle = Bundle()
             loadFragment.loadFragment(4, bundle)
         }

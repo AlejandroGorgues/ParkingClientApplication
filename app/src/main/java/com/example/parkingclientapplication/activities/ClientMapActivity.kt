@@ -16,7 +16,6 @@ import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.google.firebase.auth.FirebaseAuth
 import com.google.zxing.integration.android.IntentIntegrator
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import kotlinx.android.synthetic.main.activity_client_map.*
 import kotlinx.android.synthetic.main.app_bar_client_map.*
 
@@ -75,11 +74,6 @@ class ClientMapActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             R.id.nav_vehicles -> {
                 supportFragmentManager.inTransaction {
                     replace(R.id.content_data_client, VehicleListFragment(), "vehiculo")
-                }
-            }
-            R.id.nav_expenses -> {
-                supportFragmentManager.inTransaction {
-                    replace(R.id.content_data_client, ExpensesClientFragment(), "gastos")
                 }
             }
             R.id.nav_map -> {

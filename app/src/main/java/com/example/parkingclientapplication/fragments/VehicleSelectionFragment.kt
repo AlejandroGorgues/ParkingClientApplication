@@ -69,6 +69,7 @@ class VehicleSelectionFragment : Fragment() {
             }
 
 
+            //Obtain all the vehicles avaliable and related to the client
             obtainTable()
 
         } catch (e: MalformedURLException) {

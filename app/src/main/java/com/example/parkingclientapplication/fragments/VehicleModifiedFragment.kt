@@ -6,14 +6,13 @@ import android.support.v4.app.Fragment
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import android.widget.ProgressBar
 import com.example.parkingclientapplication.AzureClient
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.model.Vehicle
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
-import kotlinx.android.synthetic.main.fragment_vehicle_modified.*
 import okhttp3.OkHttpClient
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -25,6 +24,8 @@ class VehicleModifiedFragment : Fragment() {
     private lateinit var edMarcaVehiculo: EditText
     private lateinit var edModeloVehiculo: EditText
     private lateinit var edMatriculaVehiculo: EditText
+
+    private lateinit var vehicleModProgressBar: ProgressBar
 
 
     private lateinit var bModifiedVehiculo: Button
@@ -46,6 +47,8 @@ class VehicleModifiedFragment : Fragment() {
         edModeloVehiculo = view.findViewById(R.id.edModeloVehiculo)
         edMatriculaVehiculo = view.findViewById(R.id.edMatriculaVehiculo)
 
+        vehicleModProgressBar = view.findViewById(R.id.vehicleModProgressBar)
+
         bModifiedVehiculo = view.findViewById(R.id.bModifiedVehiculo)
 
         vehicle = arguments!!.getParcelable("vehiculo")!!
@@ -55,6 +58,7 @@ class VehicleModifiedFragment : Fragment() {
         edModeloVehiculo.setText(vehicle.model)
         edMatriculaVehiculo.setText(vehicle.licensePlate)
 
+        // Update the data of the vehicle on the DDBB
         bModifiedVehiculo.setOnClickListener {
             try {
                 vehicle.brand = edMarcaVehiculo.text.toString()

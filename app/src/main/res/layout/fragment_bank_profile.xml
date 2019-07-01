@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Número de la tarjeta"/>
+            android:text="@string/numeroTarjeta"/>
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/edNumberCard"
-                android:hint="XXXX-XXXX-XXXX-XXXX"/>
+                android:hint="@string/defaultNumber"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -44,7 +44,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        android:text="Fecha de caducidad"/>
+                        android:text="@string/fecha_de_caducidad"/>
                 <Spinner
                         android:id="@+id/date_spinner"
                         android:layout_width="wrap_content"
@@ -62,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="Número seguridad"/>
+                    android:text="@string/nmero_seguridad"/>
 
             <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/edSecurityNumber"
-                        android:hint="Number"/>
+                        android:hint="@string/number"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -85,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Nombre asociado a la tarjeta"/>
+            android:text="@string/nombre_asociado"/>
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -96,7 +96,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/edNameCard"
-            android:hint="Nombre"/>
+            android:hint="@string/nombre"/>
     </android.support.design.widget.TextInputLayout>
 
     <LinearLayout android:layout_width="wrap_content"
@@ -114,7 +114,7 @@
                     android:textColor="@color/whiteText"
                     app:backgroundTint="@color/blueButton"
                     android:visibility="invisible"
-                    android:text="Guardar Cambios"/>
+                    android:text="@string/guardar_cambios"/>
 
             <Button android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
                     android:id="@+id/bCreateBankProfile"
                     android:textColor="@color/whiteText"
                     app:backgroundTint="@color/blueButton"
-                    android:text="Asociar perfil"/>
+                    android:text="@string/asociar_perfil"/>
         </FrameLayout>
 
     <Button android:layout_width="wrap_content"
@@ -131,7 +131,7 @@
             android:id="@+id/bDeleteBankProfile"
             android:textColor="@color/whiteText"
             app:backgroundTint="@color/blueButton"
-            android:text="Borrar perfil"/>
+            android:text="@string/borrar_perfil"/>
 
     </LinearLayout>
 

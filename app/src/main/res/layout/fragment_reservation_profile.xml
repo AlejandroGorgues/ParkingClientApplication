@@ -5,14 +5,14 @@
               android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:gravity="center"
-              android:background="@color/backgroundFinalSecondary"
+              android:background="@color/backgroundFinal"
               tools:context=".fragments.ReservationProfileFragment">
 
     <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Usuario">
+            android:hint="@string/username">
 
         <android.support.design.widget.TextInputEditText
                 android:id="@+id/edUserReserv"
@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Aparcamiento">
+            android:hint="@string/aparcamiento">
 
     <android.support.design.widget.TextInputEditText
             android:id="@+id/edParkingReserv"
@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Tarjeta">
+            android:hint="@string/tarjeta">
 
     <android.support.design.widget.TextInputEditText
             android:id="@+id/edTarjetaReserv"
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Matricula">
+            android:hint="@string/matr_cula">
 
         <android.support.design.widget.TextInputEditText
                 android:id="@+id/edMatriculaReserv"
@@ -63,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Precio actual">
+            android:hint="@string/precio_actual">
 
         <android.support.design.widget.TextInputEditText
                 android:id="@+id/edPrecioReserv"
@@ -75,7 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Fecha realización reserva">
+            android:hint="@string/fechaReserva">
 
         <android.support.design.widget.TextInputEditText
                 android:id="@+id/edFechaReserv"
@@ -87,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:hint="Estado reserva">
+            android:hint="@string/estado_reserva">
 
         <android.support.design.widget.TextInputEditText
                 android:id="@+id/edEstadoReserv"
@@ -98,7 +98,7 @@
     <Button android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/guideAccess"
-            android:text="Acceder al guiado"
+            android:text="@string/guiadoAcces"
             android:textColor="@color/whiteText"
             android:layout_gravity="center"
             app:backgroundTint="@color/blueButton"/>

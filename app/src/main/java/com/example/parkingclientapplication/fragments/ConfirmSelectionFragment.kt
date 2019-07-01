@@ -24,7 +24,6 @@ import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.runOnUiThread
 import org.jetbrains.anko.yesButton
 import java.net.MalformedURLException
-import kotlin.collections.ArrayList
 
 class ConfirmSelectionFragment : Fragment() {
     private lateinit var buttonConfirm: Button
@@ -150,8 +149,8 @@ class ConfirmSelectionFragment : Fragment() {
 
 
                     runOnUiThread {
-                        alert("El aparcamiento seleccionado es "+parking.nameParking+"\n " +
-                                "Para conocer más datos así como el guiado, puede acceder al apartado 'Mis Reservas'\n" +
+                        alert("El aparcamiento ha sido reservado\n" +
+                                "Para más datos así como el acceso al guiado, puede acceder a 'Mis Reservas'\n" +
                                 "Se informará de la plaza en la entrada del aparcamiento") {
                             title = "Información"
                             yesButton { loadFragment.loadFragment(2, bundle) }

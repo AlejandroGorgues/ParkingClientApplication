@@ -7,45 +7,40 @@
         <item
                 android:id="@+id/nav_profile"
                 android:icon="@drawable/ic_account_circle_black_24dp"
-                android:title="Perfil"/>
+                android:title="@string/perfil"/>
         <item
                 android:id="@+id/nav_bank"
                 android:icon="@drawable/ic_account_balance_wallet_black_24dp"
-                android:title="Perfil bancario"/>
+                android:title="@string/perfil_bancario"/>
         <item
                 android:id="@+id/nav_reservations"
                 android:icon="@drawable/ic_bookmark_black_24dp"
-                android:title="Mis reservas"/>
+                android:title="@string/mis_reservas"/>
         <item
                 android:id="@+id/nav_vehicles"
                 android:icon="@drawable/ic_carmultiple"
-                android:title="Mis vehículos"/>
-        <item
-                android:id="@+id/nav_expenses"
-                android:icon="@drawable/ic_payments"
-                android:title="Mis gastos"/>
-
+                android:title="@string/mis_veh_culos"/>
         <item
                 android:id="@+id/nav_map"
                 android:icon="@drawable/ic_map_black_24dp"
-                android:title="Mapa"/>
+                android:title="@string/mapa"/>
         <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_logout"
-                android:title="Desconectar"/>
+                android:title="@string/desconectar"/>
     </group>
 
-    <item android:title="Acciones">
+    <item android:title="@string/acciones">
         <menu>
             <item
                     android:id="@+id/nav_information"
                     android:icon="@drawable/ic_parkinglot_information"
-                    android:title="Obtener información plaza"/>
+                    android:title="@string/plazaInfo"/>
 
             <item
                     android:id="@+id/nav_guide"
                     android:icon="@drawable/ic_directions_black_24dp"
-                    android:title="Acceder al guiado"/>
+                    android:title="@string/acceder_al_guiado"/>
 
         </menu>
     </item>

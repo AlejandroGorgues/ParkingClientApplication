@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import com.akexorcist.googledirection.DirectionCallback
 import com.akexorcist.googledirection.GoogleDirection
@@ -21,7 +20,6 @@ import com.akexorcist.googledirection.model.Direction
 import com.akexorcist.googledirection.util.DirectionConverter
 import com.example.parkingclientapplication.GeofenceTransitionIntentService
 import com.example.parkingclientapplication.R
-import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.model.Parking
 import com.example.parkingclientapplication.model.Reservation
 import com.google.android.gms.location.Geofence
@@ -30,9 +28,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient
 import kotlinx.android.synthetic.main.app_bar_guide_map.*
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -41,7 +37,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
 
 
 
-    lateinit var mapView: MapView
+    private lateinit var mapView: MapView
     var mapFragment: GoogleMap? = null
     private var permissions: ArrayList<String> = ArrayList()
 
@@ -196,15 +192,22 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
         mapView.onLowMemory()
     }
 
+    /*
+    *When user press the top right button, start guiding
+     */
     private fun startGuiding(){
         createParkingGeofence(parking.latitude!!, parking.longitude!!)
         getCurrentLocation()
 
+        // Due to the limited use of directions API, I commented the direction call
         //getDirection(LatLng(parking.latitude!!.toDouble(), parking.longitude!!.toDouble()))
     }
 
+    /*
+    * Draw the polilyne of the route to the parking
+     */
     private fun getDirection(marker: LatLng){
-        GoogleDirection.withServerKey("AIzaSyBn0JtWo8gDx4MIUwBdGISs7_YimRHqy7A")
+        GoogleDirection.withServerKey(resources.getString(R.string.googleDirection))
             .from(LatLng(locationLatLng!!.latitude, locationLatLng!!.longitude))
             .to(LatLng(marker.latitude, marker.longitude))
             .execute(object: DirectionCallback {
@@ -228,7 +231,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
             })
     }
 
-    //Obtiene la localización actual del dispositivo y lo asocia a un marcador
+    //Obtain current location and draw a marker on it
     private fun getCurrentLocation() {
         if (checkLocationPermission()) {
             if ((ContextCompat.checkSelfPermission(
@@ -309,7 +312,7 @@ class GuideMapActivity : AppCompatActivity(), OnMapReadyCallback, LocationSource
         }
     }
 
-    //Menú de creación del geofence
+    //Create the geofence over the parking marker
     private fun createParkingGeofence(latitude: Float, longitude: Float) {
 
 

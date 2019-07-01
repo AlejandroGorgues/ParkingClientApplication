@@ -3,15 +3,11 @@ package com.example.parkingclientapplication.activities
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.fragments.ConfirmSelectionFragment
 import com.example.parkingclientapplication.fragments.VehicleSelectionFragment
 import com.example.parkingclientapplication.inTransSelection
-import com.example.parkingclientapplication.inTransaction
 import com.example.parkingclientapplication.interfaces.LoadFragments
-import com.example.parkingclientapplication.model.Parking
 import kotlinx.android.synthetic.main.app_bar_reservation.*
 
 class ReservationActivity : AppCompatActivity(), LoadFragments {

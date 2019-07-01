@@ -18,7 +18,6 @@ import com.example.parkingclientapplication.model.Driver
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable
-import kotlinx.android.synthetic.main.fragment_profile_client.*
 import org.jetbrains.anko.uiThread
 import java.net.MalformedURLException
 
@@ -67,6 +66,7 @@ class ProfileClientFragment : Fragment() {
                 client
             }
 
+            //Load all the data related to the client profile
             driverTable = mClient!!.getTable(Driver::class.java)
             doAsync {
                 val resultQuery = driverTable!!.where().field("email").eq(getEmail(auth.currentUser!!)).execute().get()
@@ -144,8 +144,11 @@ class ProfileClientFragment : Fragment() {
 
             })
 
+        /*
+        * Check if the email or password has benn changed to call their firebase methods
+         */
         bUpdate.setOnClickListener {
-            profileProgressBar.visibility = View.VISIBLE
+            prbProfile.visibility = View.VISIBLE
             driver.email = edEmail.text.toString()
             driver.password = edPassword.text.toString()
             driver.username = edName.text.toString()
@@ -167,7 +170,7 @@ class ProfileClientFragment : Fragment() {
                     }
                 }
                 driverTable!!.update(driver).get()
-                profileProgressBar.visibility = View.INVISIBLE
+                prbProfile.visibility = View.INVISIBLE
             }
         }
 

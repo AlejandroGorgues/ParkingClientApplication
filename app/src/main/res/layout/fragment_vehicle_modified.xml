@@ -8,7 +8,7 @@
               android:paddingTop="56dp"
               android:paddingLeft="24dp"
               android:paddingRight="24dp"
-              android:background="@color/backgroundFinalSecondary"
+              android:background="@color/backgroundFinal"
               tools:context=".fragments.VehicleAddFragment">
 
     <android.support.design.widget.TextInputLayout
@@ -20,7 +20,7 @@
                 android:id="@+id/edTipoVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tipo de vehículo"/>
+                android:hint="@string/tipo_de_vehiculo"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -33,7 +33,7 @@
                 android:id="@+id/edMarcaVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Marca"/>
+                android:hint="@string/marca"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -46,7 +46,7 @@
                 android:id="@+id/edModeloVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Modelo"/>
+                android:hint="@string/modelo"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -59,7 +59,7 @@
                 android:id="@+id/edMatriculaVehiculo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Matrícula"/>
+                android:hint="@string/matr_cula"/>
 
     </android.support.design.widget.TextInputLayout>
 

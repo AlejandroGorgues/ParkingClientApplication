@@ -12,8 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:onClick="onClick"
-            android:text="Escanear QR" />
+            android:text="@string/escanear_qr" />
 
     <ImageView
             android:id="@+id/imageView"
@@ -22,63 +21,3 @@
             android:layout_below="@+id/scanner_btn"
             android:layout_centerHorizontal="true" />
 </RelativeLayout>
-<!--<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="#ffffff"
-              android:orientation="vertical"
-              android:padding="16dp">
-
-    <com.camerakit.CameraKitView
-            android:id="@+id/cameraView"
-            android:layout_width="match_parent"
-            android:layout_height="540dp"
-            android:adjustViewBounds="true"/>
-
-    <Button
-            android:id="@+id/buttonImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Make photo"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-    <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="QR Code Data"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-    <TextView
-            android:id="@+id/codeData"
-            android:autoLink="all"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            tools:text="Card Number" />-->
-
-
-
-
-    <!--<io.anyline.view.ScanView
-            android:id="@+id/scan_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-    />
-
-    <TextView
-            android:id="@+id/text_result"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="60dp"
-            android:textColor="@android:color/white"
-            tools:text="1234656479765"
-            android:textSize="24sp"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"/>-->

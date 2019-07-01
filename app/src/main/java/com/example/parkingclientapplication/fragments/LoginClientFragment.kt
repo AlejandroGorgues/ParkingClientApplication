@@ -7,17 +7,12 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.activities.ClientMapActivity
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.google.firebase.auth.FirebaseAuth
-
-import kotlinx.android.synthetic.main.fragment_login.*
 
 
 class LoginClientFragment : Fragment() {
@@ -31,6 +26,7 @@ class LoginClientFragment : Fragment() {
     private lateinit var edPasswordLogin: EditText
     private lateinit var edEmailLogin: EditText
 
+    private lateinit var loginProgressBar: ProgressBar
     private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
@@ -44,6 +40,8 @@ class LoginClientFragment : Fragment() {
 
         buttonAccess = view.findViewById(R.id.buttonAccess)
 
+        loginProgressBar = view.findViewById(R.id.loginProgressBar)
+
         edEmailLogin = view.findViewById(R.id.edEmailLogin)
         edPasswordLogin = view.findViewById(R.id.edPasswordLogin)
         edEmailLogin.setText("a@gmail.com")
@@ -51,6 +49,8 @@ class LoginClientFragment : Fragment() {
 
         loadFragments = activity as LoadFragments
 
+
+        //Create a new user on Azure as well as on Firebase
         buttonAccess.setOnClickListener {
             loginProgressBar.visibility = View.VISIBLE
 

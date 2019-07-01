@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/edEmailLogin"
-                android:hint="Correo"/>
+                android:hint="@string/email"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/edPasswordLogin"
                 android:inputType="textPassword"
-                android:hint="Contraseña"/>
+                android:hint="@string/password"/>
 
     </android.support.design.widget.TextInputLayout>
 

@@ -2,13 +2,6 @@ package com.example.parkingclientapplication.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.microsoft.windowsazure.mobileservices.table.DateTimeOffset
-import java.sql.Time
-import java.sql.Timestamp
-import java.text.DateFormat
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.*
 
 
 class Reservation() : Parcelable {

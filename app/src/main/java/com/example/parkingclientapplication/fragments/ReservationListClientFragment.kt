@@ -2,20 +2,18 @@ package com.example.parkingclientapplication.fragments
 
 
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import android.support.v4.app.Fragment
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.*
+import android.widget.ProgressBar
 import com.example.parkingclientapplication.AzureClient
 import com.example.parkingclientapplication.R
 import com.example.parkingclientapplication.ReservationListAdapter
 import com.example.parkingclientapplication.interfaces.LoadFragments
 import com.example.parkingclientapplication.model.Driver
-import com.example.parkingclientapplication.model.ParkingLot
 import com.example.parkingclientapplication.model.Reservation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -30,6 +28,8 @@ class ReservationListClientFragment : Fragment() {
 
     private lateinit var reservAdapter: RecyclerView.Adapter<*>
     private lateinit var reservRecyclerView: RecyclerView
+
+    private lateinit var prbReservationList: ProgressBar
 
     private lateinit var loadFragment: LoadFragments
 
@@ -54,6 +54,8 @@ class ReservationListClientFragment : Fragment() {
         driver = Driver()
         loadFragment = activity as LoadFragments
         reservRecyclerView = view.findViewById(R.id.client_reservation_recycler_view)
+        //prbReservationList = view.findViewById(R.id.reserva)
+        //prbReservationList.visibility = View.VISIBLE
         try {
             // Create the client instance, using the provided mobile app URL.
             mClient = AzureClient.getInstance(context!!).getClient()
@@ -67,6 +69,7 @@ class ReservationListClientFragment : Fragment() {
                 client
             }
 
+            //Load all reservations related to the client
             reservationTable = mClient!!.getTable(Reservation::class.java)
 
             driverTable = mClient!!.getTable(Driver::class.java)
@@ -80,11 +83,13 @@ class ReservationListClientFragment : Fragment() {
                         reservations.add(reservation)
                         uiThread {
                             reservAdapter.notifyDataSetChanged()
+                            //prbReservationList.visibility = View.GONE
                         }
                     }
                 }
 
             }
+
 
         } catch (e: MalformedURLException) {
             AzureClient.getInstance(context!!).createAndShowDialog(Exception("There was an error creating the Mobile Service. Verify the URL"), "Error")

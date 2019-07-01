@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import com.example.parkingclientapplication.AzureClient
 
 import com.example.parkingclientapplication.R
@@ -52,8 +51,6 @@ class ReservationProfileFragment : Fragment() {
     private lateinit var loadFragments: LoadFragments
 
     private lateinit var reservation: Reservation
-    private lateinit var parkingLot: ParkingLot
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -99,6 +96,11 @@ class ReservationProfileFragment : Fragment() {
                 client
             }
 
+
+            /*
+            *Load all the reservation data from the reservation object that the client clicked with extra information that
+            * need to be search from the DDBB
+             */
 
             driverTable = mClient!!.getTable(Driver::class.java)
             bankProfileTable = mClient!!.getTable(BankProfile::class.java)
